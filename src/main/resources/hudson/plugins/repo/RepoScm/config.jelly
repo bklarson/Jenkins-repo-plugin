@@ -1,0 +1,20 @@
+<j:jelly
+	xmlns:j="jelly:core"
+	xmlns:st="jelly:stapler"
+	xmlns:d="jelly:define"
+	xmlns:l="/lib/layout"
+	xmlns:t="/lib/hudson"
+	xmlns:f="/lib/form">
+
+	<f:entry title="Manifest Repository Url" help="/plugin/repo/help-manifestRepositoryUrl.html">
+		<f:textbox name="repo.manifestRepositoryUrl" value="${scm.manifestRepositoryUrl}"/>
+	</f:entry>
+
+	<f:advanced>
+
+		<f:entry title="Manifest Branch" help="/plugin/repo/help-manifestBranch.html">
+			<f:textbox name="repo.manifestBranch" value="${scm.manifestBranch}"/>
+		</f:entry>
+
+	</f:advanced>
+</j:jelly>

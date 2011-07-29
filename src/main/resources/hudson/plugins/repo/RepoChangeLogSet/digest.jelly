@@ -1,0 +1,27 @@
+<j:jelly
+	xmlns:j="jelly:core"
+	xmlns:st="jelly:stapler"
+	xmlns:d="jelly:define"
+	xmlns:l="/lib/layout"
+	xmlns:t="/lib/hudson"
+	xmlns:f="/lib/form">
+
+	<j:choose>
+		<j:when test="${it.emptySet}">
+			No changes.
+		</j:when>
+
+	<j:otherwise>
+		Changes
+		<ul>
+			<j:forEach var="cs" items="${it.items}" varStatus="loop">
+				<li>
+					${cs.msgAnnotated} <br/>
+					-- <a href="${rootURL}/${cs.author.url}/">${cs.author}</a> /
+					<a href="changes#detail${loop.index}">detail</a> <br/>
+				</li>
+			</j:forEach>
+		</ul>
+	</j:otherwise>
+	</j:choose>
+</j:jelly>

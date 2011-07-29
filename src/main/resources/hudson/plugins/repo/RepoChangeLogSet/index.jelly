@@ -1,0 +1,51 @@
+<j:jelly
+	xmlns:j="jelly:core"
+	xmlns:st="jelly:stapler"
+	xmlns:d="jelly:define"
+	xmlns:l="/lib/layout"
+	xmlns:t="/lib/hudson"
+	xmlns:f="/lib/form">
+	<h2>Summary</h2>
+	<ol>
+		<j:forEach var="cs" items="${it.logs}">
+			<li><st:out value="${cs.msg}"/></li>
+		</j:forEach>
+	</ol>
+
+	<table class="pane" style="border:none">
+		<j:forEach var="cs" items="${it.items}" varStatus="loop">
+			<tr class="pane">
+				<td colspan="2" class="changeset">
+					<a name="detail${loop.index}"></a>
+					<div class="changeset-message">
+						<b>
+						Project: ${cs.path}<br/>
+						Revision: ${cs.revision}<br/>
+						Author: <a href="${rootURL}/${cs.author.url}/">${cs.author}</a>
+							&amp;lt;${cs.authorEmail}&amp;gt; on ${cs.authorDate}<br/>
+						Committer: <a href="${rootURL}/${cs.committer.url}/">${cs.committer}</a>
+							&amp;lt;${cs.committerEmail}&amp;gt; on ${cs.committerDate}<br/>
+            			</b><br/>
+						<pre><st:out value="${cs.msg}"/></pre>
+						
+						<table>
+						<j:forEach var="item" items="${cs.modifiedFiles}">
+						    <tr>
+						    <td style="vertical-align:middle"><t:editTypeIcon type="${item.editType}" style="vertical-align:middle"/> ${item.action}</td>
+						    <td style="vertical-align:middle">${item.path}</td>
+						    </tr>
+						</j:forEach>
+						</table>
+					</div>
+				</td>
+			</tr>
+
+			<!--<j:forEach var="item" items="${cs.modifiedFiles}">
+				<tr>
+					<td><t:editTypeIcon type="${item.editType}" /> ${item.action}</td>
+					<td>${item.path}</td>
+				</tr>
+			</j:forEach>-->
+		</j:forEach>
+	</table>
+</j:jelly>
