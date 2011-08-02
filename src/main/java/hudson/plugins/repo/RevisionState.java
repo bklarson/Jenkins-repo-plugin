@@ -84,7 +84,7 @@ public class RevisionState extends SCMRevisionState implements Serializable {
 			final int numProjects = projectNodes.getLength();
 			for (int i = 0; i < numProjects; i++) {
 				final Element projectElement = (Element) projectNodes.item(i);
-				final String path =
+				String path =
 						Util.fixEmptyAndTrim(projectElement
 								.getAttribute("path"));
 				final String serverPath =
@@ -93,6 +93,11 @@ public class RevisionState extends SCMRevisionState implements Serializable {
 				final String revision =
 						Util.fixEmptyAndTrim(projectElement
 								.getAttribute("revision"));
+				if (path == null) {
+					// 'repo manifest -o' doesn't output a path if it is the
+					// same as the server path, even if the path is specified.
+					path = serverPath;
+				}
 				if (path != null && serverPath != null && revision != null) {
 					projects.put(path, new ProjectState(path, serverPath,
 							revision));
