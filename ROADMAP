@@ -10,10 +10,6 @@ Badge/Tag support
 
 Gerrit-Download integration (Gerrit Trigger plugin support)
 Better auto-retry logic
-Custom/Local manifest uploaded via UI
 
 Specify manifest name (-m option)
 Support smartsync (-s option)
-Support repo mirrors
-Support fetching on multiple repo threads
-

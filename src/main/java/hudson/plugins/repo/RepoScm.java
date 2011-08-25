@@ -46,6 +46,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import net.sf.json.JSONObject;
 
@@ -59,11 +61,18 @@ import org.kohsuke.stapler.StaplerRequest;
  */
 public class RepoScm extends SCM {
 
+	private static Logger debug = Logger
+			.getLogger("hudson.plugins.repo.RepoScm");
+
 	private final String manifestRepositoryUrl;
 
 	// Advanced Fields:
 	private final String manifestBranch;
 	private final String repoUrl;
+	private final String mirrorDir;
+	private final int jobs;
+	private final String localManifest;
+	private final String destinationDir;
 
 	/**
 	 * Returns the manifest repository URL.
@@ -81,6 +90,38 @@ public class RepoScm extends SCM {
 	}
 
 	/**
+	 * Returns the name of the mirror directory. By default, this is null and
+	 * repo does not use a mirror.
+	 */
+	public String getMirrorDir() {
+		return mirrorDir;
+	}
+
+	/**
+	 * Returns the number of jobs used for sync. By default, this is null and
+	 * repo does not use concurrent jobs.
+	 */
+	public int getJobs() {
+		return jobs;
+	}
+
+	/**
+	 * Returns the contents of the local_manifest.xml. By default, this is null
+	 * and a local_manifest.xml is neither created nor modified.
+	 */
+	public String getLocalManifest() {
+		return localManifest;
+	}
+
+	/**
+	 * Returns the destination directory. By default, this is null and the
+	 * source is synced to the root of the workspace.
+	 */
+	public String getDestinationDir() {
+		return destinationDir;
+	}
+
+	/**
 	 * The constructor takes in user parameters and sets them. Each job using
 	 * the RepoSCM will call this constructor.
 	 *
@@ -90,12 +131,29 @@ public class RepoScm extends SCM {
 	 *            The branch of the manifest repository. Typically this is null
 	 *            or the empty string, which will cause repo to default to
 	 *            "master".
+	 * @param mirrorDir
+	 *            The path of the mirror directory to reference when
+	 *            initializing repo.
+	 * @param jobs
+	 *            The number of concurrent jobs to use for the sync command. If
+	 *            this is 0 or negative the jobs parameter is not specified.
+	 * @param localManifest
+	 *            If not null this string is written to .repo/local_manifest.xml
+	 * @param destinationDir
+	 *            If not null then the source is synced to the destinationDir
+	 *            subdirectory of the workspace.
 	 */
 	@DataBoundConstructor
 	public RepoScm(final String manifestRepositoryUrl,
-			final String manifestBranch) {
+			final String manifestBranch, final String mirrorDir,
+			final int jobs, final String localManifest,
+			final String destinationDir) {
 		this.manifestRepositoryUrl = manifestRepositoryUrl;
 		this.manifestBranch = Util.fixEmptyAndTrim(manifestBranch);
+		this.mirrorDir = Util.fixEmptyAndTrim(mirrorDir);
+		this.jobs = jobs;
+		this.localManifest = Util.fixEmptyAndTrim(localManifest);
+		this.destinationDir = Util.fixEmptyAndTrim(destinationDir);
 		// TODO: repoUrl
 		this.repoUrl = null;
 	}
@@ -126,13 +184,25 @@ public class RepoScm extends SCM {
 				return PollingResult.BUILD_NOW;
 			}
 		}
-		if (!checkoutCode(launcher, workspace, listener.getLogger())) {
+
+		FilePath repoDir;
+		if (destinationDir != null) {
+			repoDir = workspace.child(destinationDir);
+			if (!repoDir.isDirectory()) {
+				repoDir.mkdirs();
+			}
+		} else {
+			repoDir = workspace;
+		}
+
+		if (!checkoutCode(launcher, repoDir, listener.getLogger())) {
 			// Some error occurred, try a build now so it gets logged.
 			return new PollingResult(myBaseline, myBaseline,
 					Change.INCOMPARABLE);
 		}
+
 		final RevisionState currentState =
-				new RevisionState(getStaticManifest(launcher, workspace,
+				new RevisionState(getStaticManifest(launcher, repoDir,
 						listener.getLogger()), manifestBranch,
 						listener.getLogger());
 		final Change change;
@@ -150,19 +220,31 @@ public class RepoScm extends SCM {
 			final Launcher launcher, final FilePath workspace,
 			final BuildListener listener, final File changelogFile)
 			throws IOException, InterruptedException {
-		if (!checkoutCode(launcher, workspace, listener.getLogger())) {
+
+		FilePath repoDir;
+		if (destinationDir != null) {
+			repoDir = workspace.child(destinationDir);
+			if (!repoDir.isDirectory()) {
+				repoDir.mkdirs();
+			}
+		} else {
+			repoDir = workspace;
+		}
+
+		if (!checkoutCode(launcher, repoDir, listener.getLogger())) {
 			return false;
 		}
 		final String manifest =
-				getStaticManifest(launcher, workspace, listener.getLogger());
+				getStaticManifest(launcher, repoDir, listener.getLogger());
 		final RevisionState currentState =
 				new RevisionState(manifest, manifestBranch,
 						listener.getLogger());
 		build.addAction(currentState);
 		final RevisionState previousState =
 				getLastState(build.getPreviousBuild());
-		ChangeLog.saveChangeLog(currentState, previousState,
-				changelogFile, launcher, workspace);
+
+		ChangeLog.saveChangeLog(currentState, previousState, changelogFile,
+				launcher, repoDir);
 		build.addAction(new TagAction(build));
 		return true;
 	}
@@ -171,6 +253,9 @@ public class RepoScm extends SCM {
 			final FilePath workspace, final OutputStream logger)
 			throws IOException, InterruptedException {
 		final List<String> commands = new ArrayList<String>(4);
+
+		debug.log(Level.INFO, "Checking out code in: " + workspace.getName());
+
 		commands.add(getDescriptor().getExecutable());
 		commands.add("init");
 		commands.add("-u");
@@ -178,6 +263,9 @@ public class RepoScm extends SCM {
 		if (manifestBranch != null) {
 			commands.add("-b");
 			commands.add(manifestBranch);
+		}
+		if (mirrorDir != null) {
+			commands.add("--reference=" + mirrorDir);
 		}
 		if (repoUrl != null) {
 			commands.add("--repo-url=" + repoUrl);
@@ -189,10 +277,22 @@ public class RepoScm extends SCM {
 		if (returnCode != 0) {
 			return false;
 		}
+		if (workspace != null) {
+			FilePath rdir = workspace.child(".repo");
+			FilePath lm = rdir.child("local_manifest.xml");
+			if (localManifest != null) {
+				lm.write(localManifest, null);
+			} else {
+				lm.delete();
+			}
+		}
 		commands.clear();
 		commands.add(getDescriptor().getExecutable());
 		commands.add("sync");
 		commands.add("-d");
+		if (jobs > 0) {
+			commands.add("--jobs=" + jobs);
+		}
 		returnCode =
 				launcher.launch().stdout(logger).pwd(workspace)
 						.cmds(commands).join();
@@ -204,18 +304,19 @@ public class RepoScm extends SCM {
 
 	private String getStaticManifest(final Launcher launcher,
 			final FilePath workspace, final OutputStream logger)
-            throws IOException, InterruptedException {
-        final ByteArrayOutputStream output = new ByteArrayOutputStream();
-        final List<String> commands = new ArrayList<String>(6);
+			throws IOException, InterruptedException {
+		final ByteArrayOutputStream output = new ByteArrayOutputStream();
+		final List<String> commands = new ArrayList<String>(6);
 		commands.add(getDescriptor().getExecutable());
 		commands.add("manifest");
 		commands.add("-o");
 		commands.add("-");
 		commands.add("-r");
-        // TODO: should we pay attention to the output from this?
-        launcher.launch().stderr(logger).stdout(output).pwd(workspace).
-            cmds(commands).join();
-        final String manifestText = output.toString();
+		// TODO: should we pay attention to the output from this?
+		launcher.launch().stderr(logger).stdout(output).pwd(workspace)
+				.cmds(commands).join();
+		final String manifestText = output.toString();
+		debug.log(Level.FINEST, manifestText);
 		return manifestText;
 	}
 

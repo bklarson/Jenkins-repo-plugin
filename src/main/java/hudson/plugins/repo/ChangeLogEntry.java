@@ -164,6 +164,25 @@ public class ChangeLogEntry extends ChangeLogSet.Entry {
 		this.modifiedFiles = modifiedFiles;
 	}
 
+	/** Converts this ChangeLogEntry to a string for debugging.
+	 * @return A String of change log entry information.
+	 */
+	@Override
+	public String toString() {
+		return
+			"path: " + path + "\n"
+			+ "serverPath: " + serverPath + "\n"
+			+ "revision: " + revision + "\n"
+			+ "authorName: " + authorName + "\n"
+			+ "authorEmail: " + authorEmail + "\n"
+			+ "authorDate: " + authorDate + "\n"
+			+ "committerName: " + committerName + "\n"
+			+ "committerEmail: " + committerEmail + "\n"
+			+ "committerDate: " + committerDate + "\n"
+			+ "commitText: " + commitText + "\n"
+			+ "modifiedFiles: " + modifiedFiles;
+	}
+
 	/**
 	 * Returns the client-side project path.
 	 */
