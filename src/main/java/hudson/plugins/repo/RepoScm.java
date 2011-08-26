@@ -68,6 +68,7 @@ public class RepoScm extends SCM {
 
 	// Advanced Fields:
 	private final String manifestBranch;
+	private final String manifestFile;
 	private final String repoUrl;
 	private final String mirrorDir;
 	private final int jobs;
@@ -87,6 +88,14 @@ public class RepoScm extends SCM {
 	 */
 	public String getManifestBranch() {
 		return manifestBranch;
+	}
+
+	/**
+	 * Returns the initial manifest file name. By default, this is null and repo
+	 * defaults to "default.xml"
+	 */
+	public String getManifestFile() {
+		return manifestFile;
 	}
 
 	/**
@@ -131,6 +140,9 @@ public class RepoScm extends SCM {
 	 *            The branch of the manifest repository. Typically this is null
 	 *            or the empty string, which will cause repo to default to
 	 *            "master".
+	 * @param manifestFile
+	 *            The file to use as the repository manifest. Typically this is
+	 *            null which will cause repo to use the default of "default.xml"
 	 * @param mirrorDir
 	 *            The path of the mirror directory to reference when
 	 *            initializing repo.
@@ -145,11 +157,12 @@ public class RepoScm extends SCM {
 	 */
 	@DataBoundConstructor
 	public RepoScm(final String manifestRepositoryUrl,
-			final String manifestBranch, final String mirrorDir,
-			final int jobs, final String localManifest,
-			final String destinationDir) {
+			final String manifestBranch, final String manifestFile,
+			final String mirrorDir, final int jobs,
+			final String localManifest, final String destinationDir) {
 		this.manifestRepositoryUrl = manifestRepositoryUrl;
 		this.manifestBranch = Util.fixEmptyAndTrim(manifestBranch);
+		this.manifestFile = Util.fixEmptyAndTrim(manifestFile);
 		this.mirrorDir = Util.fixEmptyAndTrim(mirrorDir);
 		this.jobs = jobs;
 		this.localManifest = Util.fixEmptyAndTrim(localManifest);
@@ -263,6 +276,10 @@ public class RepoScm extends SCM {
 		if (manifestBranch != null) {
 			commands.add("-b");
 			commands.add(manifestBranch);
+		}
+		if (manifestFile != null) {
+			commands.add("-m");
+			commands.add(manifestFile);
 		}
 		if (mirrorDir != null) {
 			commands.add("--reference=" + mirrorDir);

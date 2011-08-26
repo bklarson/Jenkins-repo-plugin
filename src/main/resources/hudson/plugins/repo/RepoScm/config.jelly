@@ -16,6 +16,10 @@
 			<f:textbox name="repo.manifestBranch" value="${scm.manifestBranch}"/>
 		</f:entry>
 
+		<f:entry title="Manifest File" help="/plugin/repo/help-manifestFile.html">
+			<f:textbox name="repo.manifestFile" value="${scm.manifestFile}"/>
+		</f:entry>
+
 		<f:entry title="Destination Directory" help="/plugin/repo/help-destinationDir.html">
 			<f:textbox name="repo.destinationDir" value="${scm.destinationDir}"/>
 		</f:entry>

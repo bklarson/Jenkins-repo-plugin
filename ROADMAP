@@ -11,5 +11,4 @@ Badge/Tag support
 Gerrit-Download integration (Gerrit Trigger plugin support)
 Better auto-retry logic
 
-Specify manifest name (-m option)
 Support smartsync (-s option)
