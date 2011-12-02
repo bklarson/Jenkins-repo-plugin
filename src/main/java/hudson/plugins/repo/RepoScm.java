@@ -244,7 +244,9 @@ public class RepoScm extends SCM {
 			repoDir = workspace;
 		}
 
-		if (!checkoutCode(launcher, repoDir, listener.getLogger())) {
+		EnvVars env = build.getEnvironment(listener);
+
+		if (!checkoutCode(env, launcher, repoDir, listener.getLogger())) {
 			return false;
 		}
 		final String manifest =
@@ -280,9 +282,10 @@ public class RepoScm extends SCM {
 		return returnCode;
 	}
 
-	private boolean checkoutCode(final Launcher launcher,
-			final FilePath workspace, final OutputStream logger)
-			throws IOException, InterruptedException {
+	private boolean checkoutCode(final EnvVars env,
+	        final Launcher launcher, final FilePath workspace,
+	        final OutputStream logger)
+	    throws IOException, InterruptedException {
 		final List<String> commands = new ArrayList<String>(4);
 
 		debug.log(Level.INFO, "Checking out code in: " + workspace.getName());
@@ -290,20 +293,20 @@ public class RepoScm extends SCM {
 		commands.add(getDescriptor().getExecutable());
 		commands.add("init");
 		commands.add("-u");
-		commands.add(manifestRepositoryUrl);
+		commands.add(env.expand(manifestRepositoryUrl));
 		if (manifestBranch != null) {
 			commands.add("-b");
-			commands.add(manifestBranch);
+			commands.add(env.expand(manifestBranch));
 		}
 		if (manifestFile != null) {
 			commands.add("-m");
-			commands.add(manifestFile);
+			commands.add(env.expand(manifestFile));
 		}
 		if (mirrorDir != null) {
-			commands.add("--reference=" + mirrorDir);
+			commands.add("--reference=" + env.expand(mirrorDir));
 		}
 		if (repoUrl != null) {
-			commands.add("--repo-url=" + repoUrl);
+			commands.add("--repo-url=" + env.expand(repoUrl));
 			commands.add("--no-repo-verify");
 		}
 		int returnCode =
