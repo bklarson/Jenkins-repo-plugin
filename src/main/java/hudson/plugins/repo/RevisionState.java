@@ -136,7 +136,11 @@ public class RevisionState extends SCMRevisionState implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return branch.hashCode() ^ manifest.hashCode() ^ projects.hashCode();
+		if (branch != null) {
+			return branch.hashCode() ^ manifest.hashCode() ^ projects.hashCode();
+		} else {
+			return manifest.hashCode() ^ projects.hashCode();
+		}
 	}
 
 	/**
