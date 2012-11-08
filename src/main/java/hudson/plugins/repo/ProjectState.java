@@ -86,6 +86,24 @@ public final class ProjectState {
 	}
 
 	/**
+	 * Enforce usage of the cache when xstream deserializes the
+	 * ProjectState objects.
+	 */
+	private synchronized Object readResolve() {
+		ProjectState projectState
+			= projectStateCache.get(
+				calculateHashCode(path, serverPath, revision));
+
+		if (projectState == null) {
+			projectStateCache.put(this.hashCode(), this);
+			projectState = this;
+		}
+
+		return projectState;
+	}
+
+
+	/**
 	 * Gets the client-side path of the project.
 	 */
 	public String getPath() {
