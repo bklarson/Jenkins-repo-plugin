@@ -134,17 +134,18 @@ public class RepoScm extends SCM {
 
 	/**
 	 * Returns the value of currentBranch.
-    */
+	 */
 	public boolean isCurrentBranch() {
 		return currentBranch;
 	}
 
-    /**
+	/**
 	 * Returns the value of quiet.
-    */
+	 */
 	public boolean isQuiet() {
 		return quiet;
 	}
+
 	/**
 	 * The constructor takes in user parameters and sets them. Each job using
 	 * the RepoSCM will call this constructor.
@@ -298,9 +299,9 @@ public class RepoScm extends SCM {
 		if (isCurrentBranch()) {
 			commands.add("-c");
 		}
-        if (isQuiet()) {
-            commands.add("-q");
-        }
+		if (isQuiet()) {
+			commands.add("-q");
+		}
 		if (jobs > 0) {
 			commands.add("--jobs=" + jobs);
 		}
