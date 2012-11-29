@@ -111,6 +111,13 @@ public class RepoScm extends SCM {
     }
 
 	/**
+	 * Returns the repo url. by default, this is null and
+	 * repo is fetched from aosp
+	 */
+	public String getRepoUrl() {
+		return repoUrl;
+	}
+	/**
 	 * Returns the name of the mirror directory. By default, this is null and
 	 * repo does not use a mirror.
 	 */
@@ -187,6 +194,9 @@ public class RepoScm extends SCM {
 	 * @param destinationDir
 	 *            If not null then the source is synced to the destinationDir
 	 *            subdirectory of the workspace.
+	 * @param repoUrl
+	 *            If not null then use this url as repo base,
+     *            instead of the default
 	 * @param currentBranch
 	 * 			  if this value is true,
 	 *            add "-c" options when excute "repo sync".
@@ -199,6 +209,7 @@ public class RepoScm extends SCM {
 			final String manifestBranch, final String manifestFile,
 			final String manifestGroup, final String mirrorDir, final int jobs,
 			final String localManifest, final String destinationDir,
+            final String repoUrl,
 			final boolean currentBranch, final boolean quiet) {
 		this.manifestRepositoryUrl = manifestRepositoryUrl;
 		this.manifestBranch = Util.fixEmptyAndTrim(manifestBranch);
@@ -210,8 +221,7 @@ public class RepoScm extends SCM {
 		this.destinationDir = Util.fixEmptyAndTrim(destinationDir);
 		this.currentBranch = currentBranch;
 		this.quiet = quiet;
-		// TODO: repoUrl
-		this.repoUrl = null;
+		this.repoUrl = Util.fixEmptyAndTrim(repoUrl);
 	}
 
 	@Override
