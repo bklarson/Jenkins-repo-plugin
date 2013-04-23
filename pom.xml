@@ -24,6 +24,16 @@
 
   <developers>
     <developer>
+      <id>aep</id>
+      <name>Arvid E. Picciani</name>
+      <email>aep-jenkins@exys.org</email>
+      <roles>
+        <role>developer</role>
+        <role>maintainer</role>
+      </roles>
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
       <id>bjarkef</id>
       <name>Bjarke Freund-Hansen</name>
       <email>bjarkefh@gmail.com</email>
