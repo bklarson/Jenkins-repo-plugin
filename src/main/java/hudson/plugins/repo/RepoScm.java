@@ -432,7 +432,8 @@ public class RepoScm extends SCM {
 		}
 		final RevisionState lastState =
 				lastBuild.getAction(RevisionState.class);
-		if (lastState != null && StringUtils.equals(lastState.getBranch(), manifestBranch)) {
+		if (lastState != null
+				&& StringUtils.equals(lastState.getBranch(), manifestBranch)) {
 			return lastState;
 		}
 		return getLastState(lastBuild.getPreviousBuild());
