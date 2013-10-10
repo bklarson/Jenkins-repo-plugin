@@ -65,13 +65,15 @@ public class RevisionState extends SCMRevisionState implements Serializable {
 	 *
 	 * @param manifest
 	 *            A string representation of the static manifest XML file
+	 * @param manifestRevision
+     *            Git hash of the manifest repo
 	 * @param branch
 	 *            The branch of the manifest project
 	 * @param logger
 	 *            A PrintStream for logging errors
 	 */
-	public RevisionState(final String manifest, final String branch,
-			final PrintStream logger) {
+	public RevisionState(final String manifest, final String manifestRevision,
+            final String branch, final PrintStream logger) {
 		this.manifest = manifest;
 		this.branch = branch;
 		try {
@@ -112,6 +114,15 @@ public class RevisionState extends SCMRevisionState implements Serializable {
 					}
 				}
 			}
+
+            final String manifestP = ".repo/manifests.git";
+            projects.put(manifestP, ProjectState.constructCachedInstance(
+                        manifestP, manifestP, manifestRevision));
+            if (logger != null) {
+                logger.println("Manifest at revision: " + manifestRevision);
+            }
+
+
 		} catch (final Exception e) {
 			logger.println(e);
 			return;

@@ -142,8 +142,20 @@ public class ChangeLog extends ChangeLogParser {
 			commands.add("log");
 			commands.add("--raw");
 			commands.add("--first-parent");
-			commands.add("--format=\"zzREPOzz%H%n%an<%ae>%aD"
-					+ "%n%cn<%ce>%cD%n%s%n%n%byyREPOyy\"");
+
+            final String format = "[[<as7d9m1R_MARK_A>]]"
+                                + "%H[[<as7d9m1R_MARK_B>]"
+                                + "%an[[<as7d9m1R_MARK_B>]"
+                                + "%ae[[<as7d9m1R_MARK_B>]"
+                                + "%aD[[<as7d9m1R_MARK_B>]"
+                                + "%cn[[<as7d9m1R_MARK_B>]"
+                                + "%ce[[<as7d9m1R_MARK_B>]"
+                                + "%cD[[<as7d9m1R_MARK_B>]"
+                                + "%s[[<as7d9m1R_MARK_B>]"
+                                + "%b[[<as7d9m1R_MARK_B>]";
+
+
+			commands.add("--format=\"" + format + "\"");
 			// TODO: make this work with the -M flag to show copied and renamed
 			// files.
 			// TODO: even better, use jgit to do the diff. It would be faster,
@@ -154,39 +166,27 @@ public class ChangeLog extends ChangeLogParser {
 			final OutputStream gitOutput = new ByteArrayOutputStream();
 			launcher.launch().stdout(gitOutput).pwd(gitdir).cmds(commands)
 					.join();
-			final String[] changelogs =
-					gitOutput.toString().split("zzREPOzz");
+            final String o = gitOutput.toString();
+			final String[] changelogs = o.split(
+                            "\\[\\[<as7d9m1R_MARK_A>\\]\\]");
+            debug.log(Level.INFO, o);
 			for (final String changelog : changelogs) {
-				if (changelog.length() < 10) {
-					// This isn't a helpful message. Skip it.
+                final String[] parts = changelog.split(
+                        "\\[\\[<as7d9m1R_MARK_B>\\]");
+				if (parts.length  < 9) {
+                    // this is broken
 					continue;
 				}
-				int endLine = changelog.indexOf('\n');
-				final String revision = changelog.substring(0, endLine);
-				int firstEmailPos = changelog.indexOf('<', endLine);
-				final String authorName =
-						changelog.substring(endLine + 1, firstEmailPos);
-				int endEmail = changelog.indexOf('>', firstEmailPos);
-				final String authorEmail =
-						changelog.substring(firstEmailPos + 1, endEmail);
-				endLine = changelog.indexOf('\n', endEmail);
-				final String authorDate =
-						changelog.substring(endEmail + 1, endLine);
-				firstEmailPos = changelog.indexOf('<', endLine);
-				final String committerName =
-						changelog.substring(endLine + 1, firstEmailPos);
-				endEmail = changelog.indexOf('>', firstEmailPos);
-				final String committerEmail =
-						changelog.substring(firstEmailPos + 1, endEmail);
-				endLine = changelog.indexOf('\n', endEmail);
-				final String committerDate =
-						changelog.substring(endEmail + 1, endLine);
-				final int endComment = changelog.indexOf("yyREPOyy", endLine);
-				final String commitText =
-						changelog.substring(endLine + 1, endComment);
+				final String revision       = parts[0];
+				final String authorName     = parts[1];
+				final String authorEmail    = parts[2];
+				final String authorDate     = parts[3];
+				final String committerName  = parts[4];
+				final String committerEmail = parts[5];
+				final String committerDate  = parts[6];
+				final String commitText     = parts[7];
+				final String[] fileLines    = parts[8].split("\n");
 
-				final String[] fileLines =
-						changelog.substring(endComment).split("\n");
 				final List<ModifiedFile> modifiedFiles =
 						new ArrayList<ModifiedFile>();
 				for (final String fileLine : fileLines) {

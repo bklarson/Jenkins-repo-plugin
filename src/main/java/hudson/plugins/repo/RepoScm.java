@@ -267,10 +267,10 @@ public class RepoScm extends SCM {
 					Change.INCOMPARABLE);
 		}
 
-		final RevisionState currentState =
-				new RevisionState(getStaticManifest(launcher, repoDir,
-						listener.getLogger()), manifestBranch,
-						listener.getLogger());
+        final RevisionState currentState = new RevisionState(
+                getStaticManifest(launcher, repoDir, listener.getLogger()),
+                getManifestRevision(launcher, repoDir, listener.getLogger()),
+                manifestBranch, listener.getLogger());
 		final Change change;
 		if (currentState.equals(myBaseline)) {
 			change = Change.NONE;
@@ -302,8 +302,10 @@ public class RepoScm extends SCM {
 		}
 		final String manifest =
 				getStaticManifest(launcher, repoDir, listener.getLogger());
+		final String manifestRevision =
+				getManifestRevision(launcher, repoDir, listener.getLogger());
 		final RevisionState currentState =
-				new RevisionState(manifest, manifestBranch,
+				new RevisionState(manifest, manifestRevision, manifestBranch,
 						listener.getLogger());
 		build.addAction(currentState);
 		final RevisionState previousState =
@@ -421,6 +423,22 @@ public class RepoScm extends SCM {
 		launcher.launch().stderr(logger).stdout(output).pwd(workspace)
 				.cmds(commands).join();
 		final String manifestText = output.toString();
+		debug.log(Level.FINEST, manifestText);
+		return manifestText;
+	}
+
+	private String getManifestRevision(final Launcher launcher,
+			final FilePath workspace, final OutputStream logger)
+			throws IOException, InterruptedException {
+		final ByteArrayOutputStream output = new ByteArrayOutputStream();
+		final List<String> commands = new ArrayList<String>(6);
+		commands.add("git");
+		commands.add("rev-parse");
+		commands.add("HEAD");
+		launcher.launch().stderr(logger).stdout(output).pwd(
+                new FilePath(workspace, ".repo/manifests"))
+				.cmds(commands).join();
+		final String manifestText = output.toString().trim();
 		debug.log(Level.FINEST, manifestText);
 		return manifestText;
 	}

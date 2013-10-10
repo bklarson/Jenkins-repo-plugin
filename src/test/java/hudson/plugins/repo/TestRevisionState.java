@@ -40,6 +40,8 @@ public class TestRevisionState extends TestCase {
 	private RevisionState stateOneCopy;
 	private RevisionState stateTwo;
 	private RevisionState stateThree;
+	private RevisionState stateMChange;
+
 
 	private String manifestOne =
 			"<manifest>"
@@ -72,10 +74,12 @@ public class TestRevisionState extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 
-		stateOne = new RevisionState(manifestOne, "master", null);
-		stateOneCopy = new RevisionState(manifestOne, "master", null);
-		stateTwo = new RevisionState(manifestTwo, "master", null);
-		stateThree = new RevisionState(manifestThree, "master", null);
+		stateOne = new RevisionState(manifestOne,     "a",  "master", null);
+		stateOneCopy = new RevisionState(manifestOne, "a",  "master", null);
+		stateTwo = new RevisionState(manifestTwo,     "a",  "master", null);
+		stateThree = new RevisionState(manifestThree, "a",  "master", null);
+
+		stateMChange = new RevisionState(manifestThree, "b",  "master", null);
 	}
 
 	/**
@@ -85,6 +89,7 @@ public class TestRevisionState extends TestCase {
 		Assert.assertTrue(stateOne.equals(stateOneCopy));
 		Assert.assertFalse(stateOne.equals(stateTwo));
 		Assert.assertFalse(stateTwo.equals(stateThree));
+		Assert.assertFalse(stateThree.equals(stateMChange));
 	}
 
 	/**
