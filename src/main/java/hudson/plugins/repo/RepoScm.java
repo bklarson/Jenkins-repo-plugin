@@ -44,6 +44,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,12 +56,16 @@ import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.export.ExportedBean;
+import org.kohsuke.stapler.export.Exported;
 
 /**
  * The main entrypoint of the plugin. This class contains code to store user
  * configuration and to check out the code using a repo binary.
  */
-public class RepoScm extends SCM {
+
+@ExportedBean
+public class RepoScm extends SCM implements Serializable {
 
 	private static Logger debug = Logger
 			.getLogger("hudson.plugins.repo.RepoScm");
@@ -82,6 +87,7 @@ public class RepoScm extends SCM {
 	/**
 	 * Returns the manifest repository URL.
 	 */
+    @Exported
 	public String getManifestRepositoryUrl() {
 		return manifestRepositoryUrl;
 	}
@@ -90,6 +96,7 @@ public class RepoScm extends SCM {
 	 * Returns the manifest branch name. By default, this is null and repo
 	 * defaults to "master".
 	 */
+    @Exported
 	public String getManifestBranch() {
 		return manifestBranch;
 	}
@@ -98,6 +105,7 @@ public class RepoScm extends SCM {
 	 * Returns the initial manifest file name. By default, this is null and repo
 	 * defaults to "default.xml"
 	 */
+    @Exported
 	public String getManifestFile() {
 		return manifestFile;
 	}
@@ -106,6 +114,7 @@ public class RepoScm extends SCM {
      * Returns the group of projects to fetch. By default, this is null and
      * repo will fetch the default group.
      */
+    @Exported
     public String getManifestGroup() {
 		return manifestGroup;
     }
@@ -114,6 +123,7 @@ public class RepoScm extends SCM {
 	 * Returns the repo url. by default, this is null and
 	 * repo is fetched from aosp
 	 */
+    @Exported
 	public String getRepoUrl() {
 		return repoUrl;
 	}
@@ -121,6 +131,7 @@ public class RepoScm extends SCM {
 	 * Returns the name of the mirror directory. By default, this is null and
 	 * repo does not use a mirror.
 	 */
+    @Exported
 	public String getMirrorDir() {
 		return mirrorDir;
 	}
@@ -129,6 +140,7 @@ public class RepoScm extends SCM {
 	 * Returns the number of jobs used for sync. By default, this is null and
 	 * repo does not use concurrent jobs.
 	 */
+    @Exported
 	public int getJobs() {
 		return jobs;
 	}
@@ -137,6 +149,7 @@ public class RepoScm extends SCM {
 	 * Returns the contents of the local_manifest.xml. By default, this is null
 	 * and a local_manifest.xml is neither created nor modified.
 	 */
+    @Exported
 	public String getLocalManifest() {
 		return localManifest;
 	}
@@ -145,6 +158,7 @@ public class RepoScm extends SCM {
 	 * Returns the destination directory. By default, this is null and the
 	 * source is synced to the root of the workspace.
 	 */
+    @Exported
 	public String getDestinationDir() {
 		return destinationDir;
 	}
@@ -152,6 +166,7 @@ public class RepoScm extends SCM {
 	/**
 	 * Returns the value of currentBranch.
 	 */
+    @Exported
 	public boolean isCurrentBranch() {
 		return currentBranch;
 	}
@@ -159,6 +174,7 @@ public class RepoScm extends SCM {
 	/**
 	 * Returns the value of quiet.
 	 */
+    @Exported
 	public boolean isQuiet() {
 		return quiet;
 	}
