@@ -23,13 +23,35 @@
  */
 package hudson.plugins.repo;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import hudson.EnvVars;
+import hudson.Extension;
+import hudson.FilePath;
+import hudson.Launcher;
+import hudson.Util;
+import hudson.model.AbstractBuild;
+import hudson.model.AbstractProject;
+import hudson.model.BuildListener;
+import hudson.model.ParameterDefinition;
+import hudson.model.ParametersDefinitionProperty;
+import hudson.model.Run;
+import hudson.model.StringParameterDefinition;
+import hudson.model.TaskListener;
+import hudson.scm.ChangeLogParser;
+import hudson.scm.PollingResult;
+import hudson.scm.SCM;
+import hudson.scm.SCMDescriptor;
+import hudson.scm.SCMRevisionState;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
@@ -39,9 +61,6 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.export.Exported;
 import org.kohsuke.stapler.export.ExportedBean;
 
-import hudson.*;
-import hudson.model.*;
-import hudson.scm.*;
 import hudson.scm.PollingResult.Change;
 import hudson.util.FormValidation;
 
@@ -87,21 +106,27 @@ public class RepoScm extends SCM implements Serializable {
 		return manifestBranch;
 	}
 
-    private String getManifestBranch(EnvVars env) {
+    private String getManifestBranch(final EnvVars env) {
         return manifestBranch == null ? "master" : env.expand(manifestBranch);
     }
 
     /**
-     * Same as {@link #getManifestBranch()} but with <em>default</em> values of parameters expanded.
+     * Same as {@link #getManifestBranch()} but with <em>default</em>
+     * values of parameters expanded.
      */
-    private String getManifestBranchExpanded(EnvVars env, AbstractProject<?, ?> project) {
+    private String getManifestBranchExpanded(final EnvVars environment,
+    		final AbstractProject<?, ?> project) {
+        EnvVars env = environment;
         if (env == null) {
             env = new EnvVars();
-            final ParametersDefinitionProperty params = project.getProperty(ParametersDefinitionProperty.class);
+            final ParametersDefinitionProperty params = project.getProperty(
+            		ParametersDefinitionProperty.class);
             if (params != null) {
-                for (ParameterDefinition param : params.getParameterDefinitions()) {
+                for (ParameterDefinition param
+                		: params.getParameterDefinitions()) {
                     if (param instanceof StringParameterDefinition) {
-                        String dflt = ((StringParameterDefinition) param).getDefaultValue();
+                        final String dflt =
+                          ((StringParameterDefinition) param).getDefaultValue();
                         if (dflt != null) {
                             env.put(param.getName(), dflt);
                         }
@@ -270,7 +295,8 @@ public class RepoScm extends SCM implements Serializable {
 			final SCMRevisionState baseline) throws IOException,
 			InterruptedException {
 		SCMRevisionState myBaseline = baseline;
-		final String expandedManifestBranch = getManifestBranchExpanded(null, project);
+		final String expandedManifestBranch =
+				getManifestBranchExpanded(null, project);
         final AbstractBuild<?, ?> lastBuild = project.getLastBuild();
 
         if (myBaseline == null) {
@@ -329,8 +355,10 @@ public class RepoScm extends SCM implements Serializable {
 		}
 
         EnvVars env = build.getEnvironment(listener);
-        final String expandedBranch = getManifestBranchExpanded(env, build.getProject());
-		if (!checkoutCode(launcher, repoDir, expandedBranch, listener.getLogger())) {
+        final String expandedBranch = getManifestBranchExpanded(
+        		env, build.getProject());
+		if (!checkoutCode(launcher, repoDir, expandedBranch,
+				listener.getLogger())) {
 			return false;
 		}
 		final String manifest =
@@ -487,10 +515,12 @@ public class RepoScm extends SCM implements Serializable {
 		final RevisionState lastState =
 				lastBuild.getAction(RevisionState.class);
 		if (lastState != null
-				&& StringUtils.equals(lastState.getBranch(), expandedManifestBranch)) {
+				&& StringUtils.equals(lastState.getBranch(),
+						expandedManifestBranch)) {
 			return lastState;
 		}
-		return getLastState(lastBuild.getPreviousBuild(), expandedManifestBranch);
+		return getLastState(lastBuild.getPreviousBuild(),
+				expandedManifestBranch);
 	}
 
 	@Override
