@@ -94,15 +94,17 @@ public class RepoScm extends SCM implements Serializable {
     /**
      * Same as {@link #getManifestBranch()} but with <em>default</em> values of parameters expanded.
      */
-    private String getManifestBranchExpanded(AbstractProject<?,?> project) {
-        final EnvVars env = new EnvVars();
-        final ParametersDefinitionProperty params = project.getProperty(ParametersDefinitionProperty.class);
-        if (params != null) {
-            for (ParameterDefinition param : params.getParameterDefinitions()) {
-                if (param instanceof StringParameterDefinition) {
-                    String dflt = ((StringParameterDefinition) param).getDefaultValue();
-                    if (dflt != null) {
-                        env.put(param.getName(), dflt);
+    private String getManifestBranchExpanded(EnvVars env, AbstractProject<?, ?> project) {
+        if (env == null) {
+            env = new EnvVars();
+            final ParametersDefinitionProperty params = project.getProperty(ParametersDefinitionProperty.class);
+            if (params != null) {
+                for (ParameterDefinition param : params.getParameterDefinitions()) {
+                    if (param instanceof StringParameterDefinition) {
+                        String dflt = ((StringParameterDefinition) param).getDefaultValue();
+                        if (dflt != null) {
+                            env.put(param.getName(), dflt);
+                        }
                     }
                 }
             }
@@ -268,7 +270,7 @@ public class RepoScm extends SCM implements Serializable {
 			final SCMRevisionState baseline) throws IOException,
 			InterruptedException {
 		SCMRevisionState myBaseline = baseline;
-		final String expandedManifestBranch = getManifestBranchExpanded(project);
+		final String expandedManifestBranch = getManifestBranchExpanded(null, project);
         final AbstractBuild<?, ?> lastBuild = project.getLastBuild();
 
         if (myBaseline == null) {
@@ -326,7 +328,8 @@ public class RepoScm extends SCM implements Serializable {
 			repoDir = workspace;
 		}
 
-        final String expandedBranch = getManifestBranchExpanded(build.getProject());
+        EnvVars env = build.getEnvironment(listener);
+        final String expandedBranch = getManifestBranchExpanded(env, build.getProject());
 		if (!checkoutCode(launcher, repoDir, expandedBranch, listener.getLogger())) {
 			return false;
 		}
