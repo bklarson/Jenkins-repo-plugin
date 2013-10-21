@@ -151,8 +151,7 @@ public class ChangeLog extends ChangeLogParser {
                                 + "%cn[[<as7d9m1R_MARK_B>]"
                                 + "%ce[[<as7d9m1R_MARK_B>]"
                                 + "%cD[[<as7d9m1R_MARK_B>]"
-                                + "%s[[<as7d9m1R_MARK_B>]"
-                                + "%b[[<as7d9m1R_MARK_B>]";
+                                + "%s\n%b[[<as7d9m1R_MARK_B>]";
 
 
 			commands.add("--format=\"" + format + "\"");
