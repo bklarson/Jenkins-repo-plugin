@@ -294,6 +294,9 @@ public class ChangeLogEntry extends ChangeLogSet.Entry {
 
 	@Override
 	public Collection<String> getAffectedPaths() {
+        if (modifiedFiles == null) {
+            return null;
+        }
 		return new AbstractList<String>() {
 			@Override
 			public String get(final int index) {
