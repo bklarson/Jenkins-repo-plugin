@@ -92,7 +92,7 @@ public class RepoScm extends SCM implements Serializable {
 	/**
 	 * Returns the manifest repository URL.
 	 */
-    @Exported
+	@Exported
 	public String getManifestRepositoryUrl() {
 		return manifestRepositoryUrl;
 	}
@@ -101,65 +101,72 @@ public class RepoScm extends SCM implements Serializable {
 	 * Returns the manifest branch name. By default, this is null and repo
 	 * defaults to "master".
 	 */
-    @Exported
+	@Exported
 	public String getManifestBranch() {
 		return manifestBranch;
 	}
 
-    private String getManifestBranch(final EnvVars env) {
-        return manifestBranch == null ? "master" : env.expand(manifestBranch);
-    }
+	private String getManifestBranch(final EnvVars env) {
+		return manifestBranch == null ? null : env.expand(manifestBranch);
+	}
 
-    /**
-     * Same as {@link #getManifestBranch()} but with <em>default</em>
-     * values of parameters expanded.
-     */
-    private String getManifestBranchExpanded(final EnvVars environment,
-    		final AbstractProject<?, ?> project) {
-        EnvVars env = environment;
-        if (env == null) {
-            env = new EnvVars();
-            final ParametersDefinitionProperty params = project.getProperty(
-            		ParametersDefinitionProperty.class);
-            if (params != null) {
-                for (ParameterDefinition param
-                		: params.getParameterDefinitions()) {
-                    if (param instanceof StringParameterDefinition) {
-                        final String dflt =
-                          ((StringParameterDefinition) param).getDefaultValue();
-                        if (dflt != null) {
-                            env.put(param.getName(), dflt);
-                        }
-                    }
-                }
-            }
-        }
-        return getManifestBranch(env);
-    }
+	/**
+	 * Same as {@link #getManifestBranch()} but with <em>default</em>
+	 * values of parameters expanded.
+	 * @param environment   an existing environment, which contains already properties from the current build
+	 * @param project       the project that is being built
+	 */
+	private String getManifestBranchExpanded(final EnvVars environment,
+			final AbstractProject<?, ?> project) {
+		// create an empty vars map
+		final EnvVars finalEnv = new EnvVars();
+		final ParametersDefinitionProperty params = project.getProperty(
+				ParametersDefinitionProperty.class);
+		if (params != null) {
+			for (ParameterDefinition param
+					: params.getParameterDefinitions()) {
+				if (param instanceof StringParameterDefinition) {
+					final String dflt =
+							((StringParameterDefinition) param).getDefaultValue();
+					if (dflt != null) {
+						finalEnv.put(param.getName(), dflt);
+					}
+				}
+			}
+		}
+		// now merge the settings from the last build environment
+		if (environment != null) {
+			finalEnv.overrideAll(environment);
+		}
+
+		EnvVars.resolve(finalEnv);
+
+		return getManifestBranch(finalEnv);
+	}
 
 	/**
 	 * Returns the initial manifest file name. By default, this is null and repo
 	 * defaults to "default.xml"
 	 */
-    @Exported
+	@Exported
 	public String getManifestFile() {
 		return manifestFile;
 	}
 
-    /**
-     * Returns the group of projects to fetch. By default, this is null and
-     * repo will fetch the default group.
-     */
-    @Exported
-    public String getManifestGroup() {
+	/**
+	 * Returns the group of projects to fetch. By default, this is null and
+	 * repo will fetch the default group.
+	 */
+	@Exported
+	public String getManifestGroup() {
 		return manifestGroup;
-    }
+	}
 
 	/**
 	 * Returns the repo url. by default, this is null and
 	 * repo is fetched from aosp
 	 */
-    @Exported
+	@Exported
 	public String getRepoUrl() {
 		return repoUrl;
 	}
@@ -167,7 +174,7 @@ public class RepoScm extends SCM implements Serializable {
 	 * Returns the name of the mirror directory. By default, this is null and
 	 * repo does not use a mirror.
 	 */
-    @Exported
+	@Exported
 	public String getMirrorDir() {
 		return mirrorDir;
 	}
@@ -176,7 +183,7 @@ public class RepoScm extends SCM implements Serializable {
 	 * Returns the number of jobs used for sync. By default, this is null and
 	 * repo does not use concurrent jobs.
 	 */
-    @Exported
+	@Exported
 	public int getJobs() {
 		return jobs;
 	}
@@ -185,7 +192,7 @@ public class RepoScm extends SCM implements Serializable {
 	 * Returns the contents of the local_manifest.xml. By default, this is null
 	 * and a local_manifest.xml is neither created nor modified.
 	 */
-    @Exported
+	@Exported
 	public String getLocalManifest() {
 		return localManifest;
 	}
@@ -194,7 +201,7 @@ public class RepoScm extends SCM implements Serializable {
 	 * Returns the destination directory. By default, this is null and the
 	 * source is synced to the root of the workspace.
 	 */
-    @Exported
+	@Exported
 	public String getDestinationDir() {
 		return destinationDir;
 	}
@@ -202,7 +209,7 @@ public class RepoScm extends SCM implements Serializable {
 	/**
 	 * Returns the value of currentBranch.
 	 */
-    @Exported
+	@Exported
 	public boolean isCurrentBranch() {
 		return currentBranch;
 	}
@@ -210,7 +217,7 @@ public class RepoScm extends SCM implements Serializable {
 	/**
 	 * Returns the value of quiet.
 	 */
-    @Exported
+	@Exported
 	public boolean isQuiet() {
 		return quiet;
 	}
@@ -228,10 +235,10 @@ public class RepoScm extends SCM implements Serializable {
 	 * @param manifestFile
 	 *            The file to use as the repository manifest. Typically this is
 	 *            null which will cause repo to use the default of "default.xml"
-     * @param manifestGroup
-     *            The group name for the projects that need to be fetched.
-     *            Typically, this is null and all projects tagged 'default' will
-     *            be fetched.
+	 * @param manifestGroup
+	 *            The group name for the projects that need to be fetched.
+	 *            Typically, this is null and all projects tagged 'default' will
+	 *            be fetched.
 	 * @param mirrorDir
 	 *            The path of the mirror directory to reference when
 	 *            initializing repo.
@@ -248,7 +255,7 @@ public class RepoScm extends SCM implements Serializable {
 	 *            subdirectory of the workspace.
 	 * @param repoUrl
 	 *            If not null then use this url as repo base,
-     *            instead of the default
+	 *            instead of the default
 	 * @param currentBranch
 	 * 			  if this value is true,
 	 *            add "-c" options when excute "repo sync".
@@ -261,7 +268,7 @@ public class RepoScm extends SCM implements Serializable {
 			final String manifestBranch, final String manifestFile,
 			final String manifestGroup, final String mirrorDir, final int jobs,
 			final String localManifest, final String destinationDir,
-            final String repoUrl,
+			final String repoUrl,
 			final boolean currentBranch, final boolean quiet) {
 		this.manifestRepositoryUrl = manifestRepositoryUrl;
 		this.manifestBranch = Util.fixEmptyAndTrim(manifestBranch);
@@ -297,9 +304,9 @@ public class RepoScm extends SCM implements Serializable {
 		SCMRevisionState myBaseline = baseline;
 		final String expandedManifestBranch =
 				getManifestBranchExpanded(null, project);
-        final AbstractBuild<?, ?> lastBuild = project.getLastBuild();
+		final AbstractBuild<?, ?> lastBuild = project.getLastBuild();
 
-        if (myBaseline == null) {
+		if (myBaseline == null) {
 			// Probably the first build, or possibly an aborted build.
 			myBaseline = getLastState(lastBuild, expandedManifestBranch);
 			if (myBaseline == null) {
@@ -324,10 +331,10 @@ public class RepoScm extends SCM implements Serializable {
 					Change.INCOMPARABLE);
 		}
 
-        final RevisionState currentState = new RevisionState(
-                getStaticManifest(launcher, repoDir, listener.getLogger()),
-                getManifestRevision(launcher, repoDir, listener.getLogger()),
-                expandedManifestBranch, listener.getLogger());
+		final RevisionState currentState = new RevisionState(
+				getStaticManifest(launcher, repoDir, listener.getLogger()),
+				getManifestRevision(launcher, repoDir, listener.getLogger()),
+				expandedManifestBranch, listener.getLogger());
 		final Change change;
 		if (currentState.equals(myBaseline)) {
 			change = Change.NONE;
@@ -354,9 +361,9 @@ public class RepoScm extends SCM implements Serializable {
 			repoDir = workspace;
 		}
 
-        EnvVars env = build.getEnvironment(listener);
-        final String expandedBranch = getManifestBranchExpanded(
-        		env, build.getProject());
+		EnvVars env = build.getEnvironment(listener);
+		final String expandedBranch = getManifestBranchExpanded(
+				env, build.getProject());
 		if (!checkoutCode(launcher, repoDir, expandedBranch,
 				listener.getLogger())) {
 			return false;
@@ -370,7 +377,7 @@ public class RepoScm extends SCM implements Serializable {
 						listener.getLogger());
 		build.addAction(currentState);
 
-        final Run previousBuild = build.getPreviousBuild();
+		final Run previousBuild = build.getPreviousBuild();
 		final RevisionState previousState =
 				getLastState(previousBuild, expandedBranch);
 
@@ -500,7 +507,7 @@ public class RepoScm extends SCM implements Serializable {
 		commands.add("rev-parse");
 		commands.add("HEAD");
 		launcher.launch().stderr(logger).stdout(output).pwd(
-                new FilePath(workspace, ".repo/manifests"))
+				new FilePath(workspace, ".repo/manifests"))
 				.cmds(commands).join();
 		final String manifestText = output.toString().trim();
 		debug.log(Level.FINEST, manifestText);
@@ -534,7 +541,7 @@ public class RepoScm extends SCM implements Serializable {
 	}
 
 	/**
-	 * A DescriptorImpl contains variables used server-wide. In our case, we
+	 * A DescriptorImpl contains variables used server-wide. In our263 case, we
 	 * only store the path to the repo executable, which defaults to just
 	 * "repo". This class also handles some Jenkins housekeeping.
 	 */
