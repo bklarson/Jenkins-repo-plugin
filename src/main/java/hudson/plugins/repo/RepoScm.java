@@ -113,7 +113,8 @@ public class RepoScm extends SCM implements Serializable {
 	/**
 	 * Same as {@link #getManifestBranch()} but with <em>default</em>
 	 * values of parameters expanded.
-	 * @param environment   an existing environment, which contains already properties from the current build
+	 * @param environment   an existing environment, which contains already
+     *                      properties from the current build
 	 * @param project       the project that is being built
 	 */
 	private String getManifestBranchExpanded(final EnvVars environment,
@@ -126,8 +127,9 @@ public class RepoScm extends SCM implements Serializable {
 			for (ParameterDefinition param
 					: params.getParameterDefinitions()) {
 				if (param instanceof StringParameterDefinition) {
-					final String dflt =
-							((StringParameterDefinition) param).getDefaultValue();
+                    final StringParameterDefinition stpd =
+                        (StringParameterDefinition) param;
+					final String dflt = stpd.getDefaultValue();
 					if (dflt != null) {
 						finalEnv.put(param.getName(), dflt);
 					}
