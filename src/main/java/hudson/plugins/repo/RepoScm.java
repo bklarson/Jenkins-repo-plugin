@@ -84,6 +84,7 @@ public class RepoScm extends SCM implements Serializable {
 	private final String repoUrl;
 	private final String mirrorDir;
 	private final int jobs;
+	private final int depth;
 	private final String localManifest;
 	private final String destinationDir;
 	private final boolean currentBranch;
@@ -191,6 +192,14 @@ public class RepoScm extends SCM implements Serializable {
 	}
 
 	/**
+	 * Returns the depth used for sync.  By default, this is null and repo
+	 * will sync the entire history.
+	 */
+	@Exported
+	public int getDepth() {
+		return depth;
+	}
+	/**
 	 * Returns the contents of the local_manifest.xml. By default, this is null
 	 * and a local_manifest.xml is neither created nor modified.
 	 */
@@ -247,6 +256,9 @@ public class RepoScm extends SCM implements Serializable {
 	 * @param jobs
 	 *            The number of concurrent jobs to use for the sync command. If
 	 *            this is 0 or negative the jobs parameter is not specified.
+	 * @param depth
+	 *            This is the depth to use when syncing.  By default this is 0
+	 *            and the full history is synced.
 	 * @param localManifest
 	 *            May be null, a string containing XML, or an URL.
 	 *            If XML, this string is written to .repo/local_manifest.xml
@@ -269,6 +281,7 @@ public class RepoScm extends SCM implements Serializable {
 	public RepoScm(final String manifestRepositoryUrl,
 			final String manifestBranch, final String manifestFile,
 			final String manifestGroup, final String mirrorDir, final int jobs,
+			final int depth,
 			final String localManifest, final String destinationDir,
 			final String repoUrl,
 			final boolean currentBranch, final boolean quiet) {
@@ -278,6 +291,7 @@ public class RepoScm extends SCM implements Serializable {
 		this.manifestFile = Util.fixEmptyAndTrim(manifestFile);
 		this.mirrorDir = Util.fixEmptyAndTrim(mirrorDir);
 		this.jobs = jobs;
+		this.depth = depth;
 		this.localManifest = Util.fixEmptyAndTrim(localManifest);
 		this.destinationDir = Util.fixEmptyAndTrim(destinationDir);
 		this.currentBranch = currentBranch;
@@ -443,6 +457,9 @@ public class RepoScm extends SCM implements Serializable {
 		if (manifestGroup != null) {
 			commands.add("-g");
 			commands.add(manifestGroup);
+		}
+		if (depth != 0) {
+			commands.add("--depth=" + depth);
 		}
 		int returnCode =
 				launcher.launch().stdout(logger).pwd(workspace)

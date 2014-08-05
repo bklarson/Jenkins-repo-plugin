@@ -40,6 +40,10 @@
 			<f:textbox name="repo.jobs" value="${scm.jobs}" clazz="number"/>
 		</f:entry>
 
+		<f:entry title="Depth" help="/plugin/repo/help-depth.html">
+			<f:textbox name="repo.depth" value="${scm.depth}" clazz="number"/>
+		</f:entry>
+
 		<f:entry title="Current Branch" help="/plugin/repo/help-currentBranch.html">
 			<f:checkbox name="repo.currentBranch"
 			   checked="${h.defaultToTrue(scm.currentBranch)}" />
