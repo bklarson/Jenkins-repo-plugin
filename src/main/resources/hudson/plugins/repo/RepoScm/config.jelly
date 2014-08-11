@@ -48,6 +48,10 @@
 			<f:checkbox name="repo.currentBranch"
 			   checked="${h.defaultToTrue(scm.currentBranch)}" />
 		</f:entry>
+    <f:entry title="Reset first" help="/plugin/repo/help-resetFirst.html">
+      <f:checkbox name="repo.resetFirst"
+                  checked="${h.defaultToFalse(scm.resetFirst)}" />
+    </f:entry>
 
 		<f:entry title="Quiet" help="/plugin/repo/help-quiet.html">
 			<f:checkbox name="repo.quiet"
