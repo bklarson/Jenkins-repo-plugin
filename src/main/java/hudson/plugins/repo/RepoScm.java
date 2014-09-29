@@ -88,7 +88,7 @@ public class RepoScm extends SCM implements Serializable {
 	private final String localManifest;
 	private final String destinationDir;
 	private final boolean currentBranch;
-    private final boolean resetFirst;
+	private final boolean resetFirst;
 	private final boolean quiet;
 
 	/**
@@ -116,7 +116,7 @@ public class RepoScm extends SCM implements Serializable {
 	 * Same as {@link #getManifestBranch()} but with <em>default</em>
 	 * values of parameters expanded.
 	 * @param environment   an existing environment, which contains already
-     *                      properties from the current build
+	 *                      properties from the current build
 	 * @param project       the project that is being built
 	 */
 	private String getManifestBranchExpanded(final EnvVars environment,
@@ -129,8 +129,8 @@ public class RepoScm extends SCM implements Serializable {
 			for (ParameterDefinition param
 					: params.getParameterDefinitions()) {
 				if (param instanceof StringParameterDefinition) {
-                    final StringParameterDefinition stpd =
-                        (StringParameterDefinition) param;
+					final StringParameterDefinition stpd =
+						(StringParameterDefinition) param;
 					final String dflt = stpd.getDefaultValue();
 					if (dflt != null) {
 						finalEnv.put(param.getName(), dflt);
@@ -225,11 +225,11 @@ public class RepoScm extends SCM implements Serializable {
 	public boolean isCurrentBranch() {
 		return currentBranch;
 	}
-    /**
-     * Returns the value of resetFirst.
-     */
-    @Exported
-    public boolean resetFirst() { return resetFirst; }
+	/**
+	 * Returns the value of resetFirst.
+	 */
+	@Exported
+	public boolean resetFirst() { return resetFirst; }
 	/**
 	 * Returns the value of quiet.
 	 */
@@ -278,9 +278,9 @@ public class RepoScm extends SCM implements Serializable {
 	 * @param currentBranch
 	 * 			  if this value is true,
 	 *            add "-c" options when excute "repo sync".
-     * @param resetFirst
-     *            if this value is true, do
-     *            "repo forall -c 'git reset --hard'" first.
+	 * @param resetFirst
+	 *            if this value is true, do
+	 *            "repo forall -c 'git reset --hard'" first.
 	 * @param quiet
 	 * 			  if this value is true,
 	 *            add "-q" options when excute "repo sync".
@@ -293,8 +293,8 @@ public class RepoScm extends SCM implements Serializable {
 			final String localManifest, final String destinationDir,
 			final String repoUrl,
 			final boolean currentBranch,
-            final boolean resetFirst,
-            final boolean quiet) {
+			final boolean resetFirst,
+			final boolean quiet) {
 		this.manifestRepositoryUrl = manifestRepositoryUrl;
 		this.manifestBranch = Util.fixEmptyAndTrim(manifestBranch);
 		this.manifestGroup = Util.fixEmptyAndTrim(manifestGroup);
@@ -305,7 +305,7 @@ public class RepoScm extends SCM implements Serializable {
 		this.localManifest = Util.fixEmptyAndTrim(localManifest);
 		this.destinationDir = Util.fixEmptyAndTrim(destinationDir);
 		this.currentBranch = currentBranch;
-        this.resetFirst = resetFirst;
+		this.resetFirst = resetFirst;
 		this.quiet = quiet;
 		this.repoUrl = Util.fixEmptyAndTrim(repoUrl);
 	}
@@ -420,15 +420,19 @@ public class RepoScm extends SCM implements Serializable {
 		final List<String> commands = new ArrayList<String>(4);
 		debug.log(Level.FINE, "Syncing out code in: " + workspace.getName());
 		commands.clear();
-        if (resetFirst) {
-            commands.add(getDescriptor().getExecutable());
-            commands.add("forall");
-            commands.add("-c");
-            commands.add("git reset --hard");
-            int syncCode = launcher.launch().stdout(logger).pwd(workspace)
-                    .cmds(commands).join();
-            commands.clear();
-        }
+		if (resetFirst) {
+			commands.add(getDescriptor().getExecutable());
+			commands.add("forall");
+			commands.add("-c");
+			commands.add("git reset --hard");
+			int syncCode = launcher.launch().stdout(logger)
+				.stderr(logger).pwd(workspace).cmds(commands).join();
+
+			if (syncCode != 0) {
+				debug.log(Level.WARNING, "Failed to reset first.");
+			}
+			commands.clear();
+		}
 		commands.add(getDescriptor().getExecutable());
 		commands.add("sync");
 		commands.add("-d");
