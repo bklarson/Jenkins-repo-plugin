@@ -108,10 +108,6 @@ public class RepoScm extends SCM implements Serializable {
 		return manifestBranch;
 	}
 
-	private String getManifestBranch(final EnvVars env) {
-		return manifestBranch == null ? null : env.expand(manifestBranch);
-	}
-
 	/**
 	 * Same as {@link #getManifestBranch()} but with <em>default</em>
 	 * values of parameters expanded.
@@ -119,7 +115,7 @@ public class RepoScm extends SCM implements Serializable {
 	 *                      properties from the current build
 	 * @param project       the project that is being built
 	 */
-	private String getManifestBranchExpanded(final EnvVars environment,
+	private EnvVars getEnvVars(final EnvVars environment,
 			final AbstractProject<?, ?> project) {
 		// create an empty vars map
 		final EnvVars finalEnv = new EnvVars();
@@ -144,8 +140,7 @@ public class RepoScm extends SCM implements Serializable {
 		}
 
 		EnvVars.resolve(finalEnv);
-
-		return getManifestBranch(finalEnv);
+		return finalEnv;
 	}
 
 	/**
@@ -174,6 +169,7 @@ public class RepoScm extends SCM implements Serializable {
 	public String getRepoUrl() {
 		return repoUrl;
 	}
+
 	/**
 	 * Returns the name of the mirror directory. By default, this is null and
 	 * repo does not use a mirror.
@@ -329,8 +325,8 @@ public class RepoScm extends SCM implements Serializable {
 			final SCMRevisionState baseline) throws IOException,
 			InterruptedException {
 		SCMRevisionState myBaseline = baseline;
-		final String expandedManifestBranch =
-				getManifestBranchExpanded(null, project);
+		final EnvVars env = getEnvVars(null, project);
+		final String expandedManifestBranch = env.expand(manifestBranch);
 		final AbstractBuild<?, ?> lastBuild = project.getLastBuild();
 
 		if (myBaseline == null) {
@@ -351,8 +347,7 @@ public class RepoScm extends SCM implements Serializable {
 			repoDir = workspace;
 		}
 
-		if (!checkoutCode(launcher, repoDir, expandedManifestBranch,
-			listener.getLogger())) {
+		if (!checkoutCode(launcher, repoDir, env, listener.getLogger())) {
 			// Some error occurred, try a build now so it gets logged.
 			return new PollingResult(myBaseline, myBaseline,
 					Change.INCOMPARABLE);
@@ -388,17 +383,17 @@ public class RepoScm extends SCM implements Serializable {
 			repoDir = workspace;
 		}
 
+		AbstractProject<?, ?> proj = build.getProject();
 		EnvVars env = build.getEnvironment(listener);
-		final String expandedBranch = getManifestBranchExpanded(
-				env, build.getProject());
-		if (!checkoutCode(launcher, repoDir, expandedBranch,
-				listener.getLogger())) {
+		env = getEnvVars(env, proj);
+		if (!checkoutCode(launcher, repoDir, env, listener.getLogger())) {
 			return false;
 		}
 		final String manifest =
 				getStaticManifest(launcher, repoDir, listener.getLogger());
 		final String manifestRevision =
 				getManifestRevision(launcher, repoDir, listener.getLogger());
+		final String expandedBranch = env.expand(manifestBranch);
 		final RevisionState currentState =
 				new RevisionState(manifest, manifestRevision, expandedBranch,
 						listener.getLogger());
@@ -452,7 +447,8 @@ public class RepoScm extends SCM implements Serializable {
 	}
 
 	private boolean checkoutCode(final Launcher launcher,
-			final FilePath workspace, final String expandedManifestBranch,
+			final FilePath workspace,
+			final EnvVars env,
 			final OutputStream logger)
 			throws IOException, InterruptedException {
 		final List<String> commands = new ArrayList<String>(4);
@@ -462,25 +458,25 @@ public class RepoScm extends SCM implements Serializable {
 		commands.add(getDescriptor().getExecutable());
 		commands.add("init");
 		commands.add("-u");
-		commands.add(manifestRepositoryUrl);
-		if (expandedManifestBranch != null) {
+		commands.add(env.expand(manifestRepositoryUrl));
+		if (manifestBranch != null) {
 			commands.add("-b");
-			commands.add(expandedManifestBranch);
+			commands.add(env.expand(manifestBranch));
 		}
 		if (manifestFile != null) {
 			commands.add("-m");
-			commands.add(manifestFile);
+			commands.add(env.expand(manifestFile));
 		}
 		if (mirrorDir != null) {
-			commands.add("--reference=" + mirrorDir);
+			commands.add("--reference=" + env.expand(mirrorDir));
 		}
 		if (repoUrl != null) {
-			commands.add("--repo-url=" + repoUrl);
+			commands.add("--repo-url=" + env.expand(repoUrl));
 			commands.add("--no-repo-verify");
 		}
 		if (manifestGroup != null) {
 			commands.add("-g");
-			commands.add(manifestGroup);
+			commands.add(env.expand(manifestGroup));
 		}
 		if (depth != 0) {
 			commands.add("--depth=" + depth);
