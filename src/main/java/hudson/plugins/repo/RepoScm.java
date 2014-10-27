@@ -416,7 +416,7 @@ public class RepoScm extends SCM implements Serializable {
 	}
 
 	private int doSync(final Launcher launcher, final FilePath workspace,
-			final OutputStream logger)
+			final OutputStream logger, final EnvVars env)
 		throws IOException, InterruptedException {
 		final List<String> commands = new ArrayList<String>(4);
 		debug.log(Level.FINE, "Syncing out code in: " + workspace.getName());
@@ -451,7 +451,7 @@ public class RepoScm extends SCM implements Serializable {
 		}
 		int returnCode =
 				launcher.launch().stdout(logger).pwd(workspace)
-						.cmds(commands).join();
+						.cmds(commands).envs(env).join();
 		return returnCode;
 	}
 
@@ -495,7 +495,7 @@ public class RepoScm extends SCM implements Serializable {
 		}
 		int returnCode =
 				launcher.launch().stdout(logger).pwd(workspace)
-						.cmds(commands).join();
+						.cmds(commands).envs(env).join();
 		if (returnCode != 0) {
 			return false;
 		}
@@ -513,7 +513,7 @@ public class RepoScm extends SCM implements Serializable {
 			}
 		}
 
-		returnCode = doSync(launcher, workspace, logger);
+		returnCode = doSync(launcher, workspace, logger, env);
 		if (returnCode != 0) {
 			debug.log(Level.WARNING, "Sync failed. Resetting repository");
 			commands.clear();
@@ -522,8 +522,8 @@ public class RepoScm extends SCM implements Serializable {
 			commands.add("-c");
 			commands.add("git reset --hard");
 			launcher.launch().stdout(logger).pwd(workspace).cmds(commands)
-				.join();
-			returnCode = doSync(launcher, workspace, logger);
+				.envs(env).join();
+			returnCode = doSync(launcher, workspace, logger, env);
 			if (returnCode != 0) {
 				return false;
 			}
