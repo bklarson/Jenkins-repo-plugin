@@ -90,6 +90,7 @@ public class RepoScm extends SCM implements Serializable {
 	private final boolean currentBranch;
 	private final boolean resetFirst;
 	private final boolean quiet;
+	private final boolean trace;
 
 	/**
 	 * Returns the manifest repository URL.
@@ -272,14 +273,17 @@ public class RepoScm extends SCM implements Serializable {
 	 *            If not null then use this url as repo base,
 	 *            instead of the default
 	 * @param currentBranch
-	 * 			  if this value is true,
-	 *            add "-c" options when excute "repo sync".
+	 *            If this value is true, add the "-c" option when executing
+	 *            "repo sync".
 	 * @param resetFirst
-	 *            if this value is true, do
-	 *            "repo forall -c 'git reset --hard'" first.
+	 *            If this value is true, do "repo forall -c 'git reset --hard'"
+	 *            before syncing.
 	 * @param quiet
-	 * 			  if this value is true,
-	 *            add "-q" options when excute "repo sync".
+	 *            If this value is true, add the "-q" option when executing
+	 *            "repo sync".
+	 * @param trace
+	 *            If this value is true, add the "--trace" option when
+	 *            executing "repo init" and "repo sync".
 	 */
 	@DataBoundConstructor
 	public RepoScm(final String manifestRepositoryUrl,
@@ -290,7 +294,8 @@ public class RepoScm extends SCM implements Serializable {
 			final String repoUrl,
 			final boolean currentBranch,
 			final boolean resetFirst,
-			final boolean quiet) {
+			final boolean quiet,
+			final boolean trace) {
 		this.manifestRepositoryUrl = manifestRepositoryUrl;
 		this.manifestBranch = Util.fixEmptyAndTrim(manifestBranch);
 		this.manifestGroup = Util.fixEmptyAndTrim(manifestGroup);
@@ -303,6 +308,7 @@ public class RepoScm extends SCM implements Serializable {
 		this.currentBranch = currentBranch;
 		this.resetFirst = resetFirst;
 		this.quiet = quiet;
+		this.trace = trace;
 		this.repoUrl = Util.fixEmptyAndTrim(repoUrl);
 	}
 
@@ -429,6 +435,9 @@ public class RepoScm extends SCM implements Serializable {
 			commands.clear();
 		}
 		commands.add(getDescriptor().getExecutable());
+		if (trace) {
+		    commands.add("--trace");
+		}
 		commands.add("sync");
 		commands.add("-d");
 		if (isCurrentBranch()) {
@@ -456,6 +465,9 @@ public class RepoScm extends SCM implements Serializable {
 		debug.log(Level.INFO, "Checking out code in: " + workspace.getName());
 
 		commands.add(getDescriptor().getExecutable());
+		if (trace) {
+		    commands.add("--trace");
+		}
 		commands.add("init");
 		commands.add("-u");
 		commands.add(env.expand(manifestRepositoryUrl));
