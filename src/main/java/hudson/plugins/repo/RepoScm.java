@@ -90,6 +90,7 @@ public class RepoScm extends SCM implements Serializable {
 	private final boolean currentBranch;
 	private final boolean resetFirst;
 	private final boolean quiet;
+	private final boolean trace;
 
 	/**
 	 * Returns the manifest repository URL.
@@ -272,14 +273,17 @@ public class RepoScm extends SCM implements Serializable {
 	 *            If not null then use this url as repo base,
 	 *            instead of the default
 	 * @param currentBranch
-	 * 			  if this value is true,
-	 *            add "-c" options when excute "repo sync".
+	 *            If this value is true, add the "-c" option when executing
+	 *            "repo sync".
 	 * @param resetFirst
-	 *            if this value is true, do
-	 *            "repo forall -c 'git reset --hard'" first.
+	 *            If this value is true, do "repo forall -c 'git reset --hard'"
+	 *            before syncing.
 	 * @param quiet
-	 * 			  if this value is true,
-	 *            add "-q" options when excute "repo sync".
+	 *            If this value is true, add the "-q" option when executing
+	 *            "repo sync".
+	 * @param trace
+	 *            If this value is true, add the "--trace" option when
+	 *            executing "repo init" and "repo sync".
 	 */
 	@DataBoundConstructor
 	public RepoScm(final String manifestRepositoryUrl,
@@ -290,7 +294,8 @@ public class RepoScm extends SCM implements Serializable {
 			final String repoUrl,
 			final boolean currentBranch,
 			final boolean resetFirst,
-			final boolean quiet) {
+			final boolean quiet,
+			final boolean trace) {
 		this.manifestRepositoryUrl = manifestRepositoryUrl;
 		this.manifestBranch = Util.fixEmptyAndTrim(manifestBranch);
 		this.manifestGroup = Util.fixEmptyAndTrim(manifestGroup);
@@ -303,6 +308,7 @@ public class RepoScm extends SCM implements Serializable {
 		this.currentBranch = currentBranch;
 		this.resetFirst = resetFirst;
 		this.quiet = quiet;
+		this.trace = trace;
 		this.repoUrl = Util.fixEmptyAndTrim(repoUrl);
 	}
 
@@ -410,7 +416,7 @@ public class RepoScm extends SCM implements Serializable {
 	}
 
 	private int doSync(final Launcher launcher, final FilePath workspace,
-			final OutputStream logger)
+			final OutputStream logger, final EnvVars env)
 		throws IOException, InterruptedException {
 		final List<String> commands = new ArrayList<String>(4);
 		debug.log(Level.FINE, "Syncing out code in: " + workspace.getName());
@@ -429,6 +435,9 @@ public class RepoScm extends SCM implements Serializable {
 			commands.clear();
 		}
 		commands.add(getDescriptor().getExecutable());
+		if (trace) {
+		    commands.add("--trace");
+		}
 		commands.add("sync");
 		commands.add("-d");
 		if (isCurrentBranch()) {
@@ -442,7 +451,7 @@ public class RepoScm extends SCM implements Serializable {
 		}
 		int returnCode =
 				launcher.launch().stdout(logger).pwd(workspace)
-						.cmds(commands).join();
+						.cmds(commands).envs(env).join();
 		return returnCode;
 	}
 
@@ -456,6 +465,9 @@ public class RepoScm extends SCM implements Serializable {
 		debug.log(Level.INFO, "Checking out code in: " + workspace.getName());
 
 		commands.add(getDescriptor().getExecutable());
+		if (trace) {
+		    commands.add("--trace");
+		}
 		commands.add("init");
 		commands.add("-u");
 		commands.add(env.expand(manifestRepositoryUrl));
@@ -483,7 +495,7 @@ public class RepoScm extends SCM implements Serializable {
 		}
 		int returnCode =
 				launcher.launch().stdout(logger).pwd(workspace)
-						.cmds(commands).join();
+						.cmds(commands).envs(env).join();
 		if (returnCode != 0) {
 			return false;
 		}
@@ -501,7 +513,7 @@ public class RepoScm extends SCM implements Serializable {
 			}
 		}
 
-		returnCode = doSync(launcher, workspace, logger);
+		returnCode = doSync(launcher, workspace, logger, env);
 		if (returnCode != 0) {
 			debug.log(Level.WARNING, "Sync failed. Resetting repository");
 			commands.clear();
@@ -510,8 +522,8 @@ public class RepoScm extends SCM implements Serializable {
 			commands.add("-c");
 			commands.add("git reset --hard");
 			launcher.launch().stdout(logger).pwd(workspace).cmds(commands)
-				.join();
-			returnCode = doSync(launcher, workspace, logger);
+				.envs(env).join();
+			returnCode = doSync(launcher, workspace, logger, env);
 			if (returnCode != 0) {
 				return false;
 			}
