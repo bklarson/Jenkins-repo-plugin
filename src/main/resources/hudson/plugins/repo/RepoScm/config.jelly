@@ -60,8 +60,8 @@
 			<f:checkbox name="repo.trace" checked="${scm.trace}" />
 		</f:entry>
 
-		<f:entry title="First parent" help="/plugin/repo/help-firstParent.html">
-			<f:checkbox name="repo.firstParent" checked="${h.defaultToTrue(scm.firstParent)}" />
+		<f:entry title="Show all changes" help="/plugin/repo/help-showAllChanges.html">
+			<f:checkbox name="repo.showAllChanges" checked="${h.defaultToFalse(scm.showAllChanges)}" />
 		</f:entry>
 
 		<f:entry title="Local Manifest" help="/plugin/repo/help-localManifest.html">

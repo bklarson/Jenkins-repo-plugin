@@ -95,7 +95,7 @@ public class ChangeLog extends ChangeLogParser {
 	 * @param workspace
 	 *            The FilePath of the workspace to use when computing
 	 *            differences. This path might be on a slave machine.
-	 * @param firstParent
+	 * @param showAllChanges
 	 *            Add --first-parent to "git log"
 	 * @throws IOException
 	 *             is thrown if we have problems writing to the changelogFile
@@ -106,7 +106,7 @@ public class ChangeLog extends ChangeLogParser {
 	public static List<ChangeLogEntry> generateChangeLog(
 			final RevisionState currentState,
 			final RevisionState previousState, final Launcher launcher,
-			final FilePath workspace, final boolean firstParent)
+			final FilePath workspace, final boolean showAllChanges)
 			throws IOException,
 			InterruptedException {
 		final List<ProjectState> changes =
@@ -144,7 +144,7 @@ public class ChangeLog extends ChangeLogParser {
 			commands.add("git");
 			commands.add("log");
 			commands.add("--raw");
-			if (firstParent) {
+			if (!showAllChanges) {
 				commands.add("--first-parent");
 			}
 
@@ -230,7 +230,7 @@ public class ChangeLog extends ChangeLogParser {
 	 * @param workspace
 	 *            The FilePath of the workspace to use when computing
 	 *            differences. This path might be on a slave machine.
-	 * @param firstParent
+	 * @param showAllChanges
 	 *            Add --first-parent to "git log"
 	 * @throws IOException
 	 *             is thrown if we have problems writing to the changelogFile
@@ -241,11 +241,11 @@ public class ChangeLog extends ChangeLogParser {
 	public static void saveChangeLog(final RevisionState currentState,
 			final RevisionState previousState, final File changelogFile,
 			final Launcher launcher, final FilePath workspace,
-			final boolean firstParent)
+			final boolean showAllChanges)
 			throws IOException, InterruptedException {
 		List<ChangeLogEntry> logs =
 				generateChangeLog(currentState, previousState, launcher,
-						workspace, firstParent);
+						workspace, showAllChanges);
 
 		if (logs == null) {
 			debug.info("No logs found");
