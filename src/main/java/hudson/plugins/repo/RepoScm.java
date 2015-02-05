@@ -91,6 +91,7 @@ public class RepoScm extends SCM implements Serializable {
 	private final boolean resetFirst;
 	private final boolean quiet;
 	private final boolean trace;
+	private final boolean showAllChanges;
 
 	/**
 	 * Returns the manifest repository URL.
@@ -228,6 +229,11 @@ public class RepoScm extends SCM implements Serializable {
 	@Exported
 	public boolean resetFirst() { return resetFirst; }
 	/**
+	 * Returns the value of showAllChanges.
+	 */
+	@Exported
+	public boolean showAllChanges() { return showAllChanges; }
+	/**
 	 * Returns the value of quiet.
 	 */
 	@Exported
@@ -284,6 +290,9 @@ public class RepoScm extends SCM implements Serializable {
 	 * @param trace
 	 *            If this value is true, add the "--trace" option when
 	 *            executing "repo init" and "repo sync".
+	 * @param showAllChanges
+	 *            If this value is true, add the "--first-parent" option to
+	 *            "git log" when determining changesets.
 	 */
 	@DataBoundConstructor
 	public RepoScm(final String manifestRepositoryUrl,
@@ -295,7 +304,8 @@ public class RepoScm extends SCM implements Serializable {
 			final boolean currentBranch,
 			final boolean resetFirst,
 			final boolean quiet,
-			final boolean trace) {
+			final boolean trace,
+			final boolean showAllChanges) {
 		this.manifestRepositoryUrl = manifestRepositoryUrl;
 		this.manifestBranch = Util.fixEmptyAndTrim(manifestBranch);
 		this.manifestGroup = Util.fixEmptyAndTrim(manifestGroup);
@@ -309,6 +319,7 @@ public class RepoScm extends SCM implements Serializable {
 		this.resetFirst = resetFirst;
 		this.quiet = quiet;
 		this.trace = trace;
+		this.showAllChanges = showAllChanges;
 		this.repoUrl = Util.fixEmptyAndTrim(repoUrl);
 	}
 
@@ -410,7 +421,7 @@ public class RepoScm extends SCM implements Serializable {
 				getLastState(previousBuild, expandedBranch);
 
 		ChangeLog.saveChangeLog(currentState, previousState, changelogFile,
-				launcher, repoDir);
+				launcher, repoDir, showAllChanges);
 		build.addAction(new TagAction(build));
 		return true;
 	}

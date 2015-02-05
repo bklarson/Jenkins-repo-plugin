@@ -95,6 +95,8 @@ public class ChangeLog extends ChangeLogParser {
 	 * @param workspace
 	 *            The FilePath of the workspace to use when computing
 	 *            differences. This path might be on a slave machine.
+	 * @param showAllChanges
+	 *            Add --first-parent to "git log"
 	 * @throws IOException
 	 *             is thrown if we have problems writing to the changelogFile
 	 * @throws InterruptedException
@@ -104,7 +106,8 @@ public class ChangeLog extends ChangeLogParser {
 	public static List<ChangeLogEntry> generateChangeLog(
 			final RevisionState currentState,
 			final RevisionState previousState, final Launcher launcher,
-			final FilePath workspace) throws IOException,
+			final FilePath workspace, final boolean showAllChanges)
+			throws IOException,
 			InterruptedException {
 		final List<ProjectState> changes =
 				currentState.whatChanged(previousState);
@@ -141,7 +144,9 @@ public class ChangeLog extends ChangeLogParser {
 			commands.add("git");
 			commands.add("log");
 			commands.add("--raw");
-			commands.add("--first-parent");
+			if (!showAllChanges) {
+				commands.add("--first-parent");
+			}
 
             final String format = "[[<as7d9m1R_MARK_A>]]"
                                 + "%H[[<as7d9m1R_MARK_B>]"
@@ -225,6 +230,8 @@ public class ChangeLog extends ChangeLogParser {
 	 * @param workspace
 	 *            The FilePath of the workspace to use when computing
 	 *            differences. This path might be on a slave machine.
+	 * @param showAllChanges
+	 *            Add --first-parent to "git log"
 	 * @throws IOException
 	 *             is thrown if we have problems writing to the changelogFile
 	 * @throws InterruptedException
@@ -233,11 +240,12 @@ public class ChangeLog extends ChangeLogParser {
 	 */
 	public static void saveChangeLog(final RevisionState currentState,
 			final RevisionState previousState, final File changelogFile,
-			final Launcher launcher, final FilePath workspace)
+			final Launcher launcher, final FilePath workspace,
+			final boolean showAllChanges)
 			throws IOException, InterruptedException {
 		List<ChangeLogEntry> logs =
 				generateChangeLog(currentState, previousState, launcher,
-						workspace);
+						workspace, showAllChanges);
 
 		if (logs == null) {
 			debug.info("No logs found");

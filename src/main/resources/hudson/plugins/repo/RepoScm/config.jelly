@@ -60,6 +60,10 @@
 			<f:checkbox name="repo.trace" checked="${scm.trace}" />
 		</f:entry>
 
+		<f:entry title="Show all changes" help="/plugin/repo/help-showAllChanges.html">
+			<f:checkbox name="repo.showAllChanges" checked="${h.defaultToFalse(scm.showAllChanges)}" />
+		</f:entry>
+
 		<f:entry title="Local Manifest" help="/plugin/repo/help-localManifest.html">
 			<f:textarea name="repo.localManifest" value="${scm.localManifest}" rows="10" />
 		</f:entry>
