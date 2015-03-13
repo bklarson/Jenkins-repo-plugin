@@ -23,6 +23,10 @@
 		<f:entry title="Group" help="/plugin/repo/help-manifestGroup.html">
 			<f:textbox name="repo.manifestGroup" value="${scm.manifestGroup}" />
 		</f:entry>
+		
+		<f:entry title="IgnoreChanges" help="/plugin/repo/help-ignoreChanges.html">
+			<f:textarea name="repo.ignoreProjects" value="${scm.ignoreProjects}" rows="3" />
+		</f:entry>
 
 		<f:entry title="Destination Directory" help="/plugin/repo/help-destinationDir.html">
 			<f:textbox name="repo.destinationDir" value="${scm.destinationDir}" />

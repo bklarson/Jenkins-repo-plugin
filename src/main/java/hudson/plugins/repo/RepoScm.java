@@ -30,7 +30,11 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -97,6 +101,7 @@ public class RepoScm extends SCM implements Serializable {
 	@CheckForNull private boolean trace;
 	@CheckForNull private boolean showAllChanges;
 	@CheckForNull private boolean noTags;
+	@CheckForNull private Set<String> ignoreProjects;
 
 	/**
 	 * Returns the manifest repository URL.
@@ -222,6 +227,14 @@ public class RepoScm extends SCM implements Serializable {
 	}
 
 	/**
+	 * returns list of ignore projects.
+	 */
+	@Exported
+	public String getIgnoreProjects() {
+		return StringUtils.join(ignoreProjects, '\n');
+	}
+
+	/**
 	 * Returns the value of currentBranch.
 	 */
 	@Exported
@@ -300,6 +313,7 @@ public class RepoScm extends SCM implements Serializable {
 	 *                              executing "repo init" and "repo sync".
 	 * @param showAllChanges        If this value is true, add the "--first-parent" option to
 	 *                              "git log" when determining changesets.
+	 *
 	 */
 	@Deprecated
 	public RepoScm(final String manifestRepositoryUrl,
@@ -328,6 +342,7 @@ public class RepoScm extends SCM implements Serializable {
 		setTrace(trace);
 		setShowAllChanges(showAllChanges);
 		setRepoUrl(repoUrl);
+		ignoreProjects = Collections.<String>emptySet();
 	}
 
 	/**
@@ -355,6 +370,7 @@ public class RepoScm extends SCM implements Serializable {
 		trace = false;
 		showAllChanges = false;
 		noTags = false;
+		ignoreProjects = Collections.<String>emptySet();
 	}
 
 	/**
@@ -553,6 +569,23 @@ public class RepoScm extends SCM implements Serializable {
 		this.noTags = noTags;
 	}
 
+	/**
+	 * Sets list of projects which changes will be ignored when
+	 * calculating whether job needs to be rebuild. This field corresponds
+	 * to serverpath i.e. "name" section of the manifest.
+	 * @param ignoreProjects
+	 *            String representing project names separated by " ".
+	 */
+	@DataBoundSetter
+	public final void setIgnoreProjects(final String ignoreProjects) {
+		if (ignoreProjects == null) {
+			this.ignoreProjects = Collections.<String>emptySet();
+			return;
+		}
+		this.ignoreProjects = new LinkedHashSet<String>(
+				Arrays.asList(ignoreProjects.split("\\s+")));
+	}
+
 	@Override
 	public SCMRevisionState calcRevisionsFromBuild(
 			@Nonnull final Run<?, ?> build, @Nullable final FilePath workspace,
@@ -563,6 +596,26 @@ public class RepoScm extends SCM implements Serializable {
 		// build, if a build was aborted before it reported the repository
 		// state, etc.
 		return null;
+	}
+
+	private boolean shouldIgnoreChanges(final RevisionState current, final RevisionState baseline) {
+		List<ProjectState>  changedProjects = current.whatChanged(baseline);
+		if ((changedProjects == null) || (ignoreProjects == null)) {
+			return false;
+		}
+		if (ignoreProjects.isEmpty()) {
+			return false;
+		}
+
+
+		// Check for every changed item if it is not contained in the
+		// ignored setting .. project must be rebuilt
+		for (ProjectState changed : changedProjects) {
+			if (!ignoreProjects.contains(changed.getServerPath())) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	@Override
@@ -605,11 +658,16 @@ public class RepoScm extends SCM implements Serializable {
 				getStaticManifest(launcher, repoDir, listener.getLogger()),
 				getManifestRevision(launcher, repoDir, listener.getLogger()),
 				expandedManifestBranch, listener.getLogger());
+
 		final Change change;
 		if (currentState.equals(myBaseline)) {
 			change = Change.NONE;
 		} else {
-			change = Change.SIGNIFICANT;
+			if (shouldIgnoreChanges(currentState, (RevisionState) myBaseline)) {
+				change = Change.NONE;
+			} else {
+				change = Change.SIGNIFICANT;
+			}
 		}
 		return new PollingResult(myBaseline, currentState, change);
 	}
