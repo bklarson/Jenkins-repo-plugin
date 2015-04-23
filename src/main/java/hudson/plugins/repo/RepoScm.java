@@ -227,12 +227,12 @@ public class RepoScm extends SCM implements Serializable {
 	 * Returns the value of resetFirst.
 	 */
 	@Exported
-	public boolean resetFirst() { return resetFirst; }
+	public boolean isResetFirst() { return resetFirst; }
 	/**
 	 * Returns the value of showAllChanges.
 	 */
 	@Exported
-	public boolean showAllChanges() { return showAllChanges; }
+	public boolean isShowAllChanges() { return showAllChanges; }
 	/**
 	 * Returns the value of quiet.
 	 */
@@ -240,6 +240,11 @@ public class RepoScm extends SCM implements Serializable {
 	public boolean isQuiet() {
 		return quiet;
 	}
+	/**
+	 * Returns the value of trace.
+	 */
+	@Exported
+	public boolean isTrace() { return trace; }
 
 	/**
 	 * The constructor takes in user parameters and sets them. Each job using
