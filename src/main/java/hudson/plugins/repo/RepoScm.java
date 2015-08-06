@@ -307,7 +307,7 @@ public class RepoScm extends SCM implements Serializable {
 	 *            If this value is true, add the "--first-parent" option to
 	 *            "git log" when determining changesets.
 	 * @param forceSync
-	 *            If this value is true, add the "-f" option when executing
+	 *            If this value is true, add the "--force-sync" option when executing
 	 *            "repo sync".
 	 */
 	@DataBoundConstructor
@@ -476,7 +476,7 @@ public class RepoScm extends SCM implements Serializable {
 			commands.add("-q");
 		}
 		if (isForceSync()) {
-			commands.add("-f");
+			commands.add("--force-sync");
 		}
 		if (jobs > 0) {
 			commands.add("--jobs=" + jobs);
