@@ -90,6 +90,7 @@ public class RepoScm extends SCM implements Serializable {
 	private final boolean currentBranch;
 	private final boolean resetFirst;
 	private final boolean quiet;
+	private final boolean forceSync;
 	private final boolean trace;
 	private final boolean showAllChanges;
 
@@ -241,6 +242,13 @@ public class RepoScm extends SCM implements Serializable {
 		return quiet;
 	}
 	/**
+	 * Returns the value of forceSync.
+	 */
+	@Exported
+	public boolean isForceSync() {
+		return forceSync;
+	}
+	/**
 	 * Returns the value of trace.
 	 */
 	@Exported
@@ -298,6 +306,9 @@ public class RepoScm extends SCM implements Serializable {
 	 * @param showAllChanges
 	 *            If this value is true, add the "--first-parent" option to
 	 *            "git log" when determining changesets.
+	 * @param forceSync
+	 *            If this value is true, add the "-f" option when executing
+	 *            "repo sync".
 	 */
 	@DataBoundConstructor
 	public RepoScm(final String manifestRepositoryUrl,
@@ -309,6 +320,7 @@ public class RepoScm extends SCM implements Serializable {
 			final boolean currentBranch,
 			final boolean resetFirst,
 			final boolean quiet,
+			final boolean forceSync,
 			final boolean trace,
 			final boolean showAllChanges) {
 		this.manifestRepositoryUrl = manifestRepositoryUrl;
@@ -323,6 +335,7 @@ public class RepoScm extends SCM implements Serializable {
 		this.currentBranch = currentBranch;
 		this.resetFirst = resetFirst;
 		this.quiet = quiet;
+		this.forceSync = forceSync;
 		this.trace = trace;
 		this.showAllChanges = showAllChanges;
 		this.repoUrl = Util.fixEmptyAndTrim(repoUrl);
@@ -461,6 +474,9 @@ public class RepoScm extends SCM implements Serializable {
 		}
 		if (isQuiet()) {
 			commands.add("-q");
+		}
+		if (isForceSync()) {
+			commands.add("-f");
 		}
 		if (jobs > 0) {
 			commands.add("--jobs=" + jobs);
