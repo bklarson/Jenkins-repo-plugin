@@ -56,6 +56,7 @@ import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.export.Exported;
@@ -92,6 +93,7 @@ public class RepoScm extends SCM implements Serializable {
 	private final boolean quiet;
 	private final boolean trace;
 	private final boolean showAllChanges;
+	private boolean noTags;
 
 	/**
 	 * Returns the manifest repository URL.
@@ -245,6 +247,11 @@ public class RepoScm extends SCM implements Serializable {
 	 */
 	@Exported
 	public boolean isTrace() { return trace; }
+	/**
+	 * Returns the value of noTags.
+	 */
+	@Exported
+	public boolean isNoTags() { return noTags; }
 
 	/**
 	 * The constructor takes in user parameters and sets them. Each job using
@@ -326,6 +333,18 @@ public class RepoScm extends SCM implements Serializable {
 		this.trace = trace;
 		this.showAllChanges = showAllChanges;
 		this.repoUrl = Util.fixEmptyAndTrim(repoUrl);
+	}
+
+	/**
+	 * Set noTags.
+	 *
+	 * @param noTags
+	 *            If this value is true, add the "--no-tags" option when
+	 *            executing "repo sync".
+	 */
+	@DataBoundSetter
+	public final void setNoTags(final boolean noTags) {
+		this.noTags = noTags;
 	}
 
 	@Override
@@ -465,6 +484,10 @@ public class RepoScm extends SCM implements Serializable {
 		if (jobs > 0) {
 			commands.add("--jobs=" + jobs);
 		}
+		if (isNoTags()) {
+			commands.add("--no-tags");
+		}
+
 		int returnCode =
 				launcher.launch().stdout(logger).pwd(workspace)
 						.cmds(commands).envs(env).join();
