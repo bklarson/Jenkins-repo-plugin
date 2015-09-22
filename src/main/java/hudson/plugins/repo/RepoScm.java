@@ -56,6 +56,7 @@ import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.export.Exported;
@@ -90,7 +91,7 @@ public class RepoScm extends SCM implements Serializable {
 	private final boolean currentBranch;
 	private final boolean resetFirst;
 	private final boolean quiet;
-	private final boolean forceSync;
+	private boolean forceSync;
 	private final boolean trace;
 	private final boolean showAllChanges;
 
@@ -306,9 +307,6 @@ public class RepoScm extends SCM implements Serializable {
 	 * @param showAllChanges
 	 *            If this value is true, add the "--first-parent" option to
 	 *            "git log" when determining changesets.
-	 * @param forceSync
-	 *            If this value is true, add the "--force-sync" option when executing
-	 *            "repo sync".
 	 */
 	@DataBoundConstructor
 	public RepoScm(final String manifestRepositoryUrl,
@@ -320,7 +318,6 @@ public class RepoScm extends SCM implements Serializable {
 			final boolean currentBranch,
 			final boolean resetFirst,
 			final boolean quiet,
-			final boolean forceSync,
 			final boolean trace,
 			final boolean showAllChanges) {
 		this.manifestRepositoryUrl = manifestRepositoryUrl;
@@ -335,11 +332,21 @@ public class RepoScm extends SCM implements Serializable {
 		this.currentBranch = currentBranch;
 		this.resetFirst = resetFirst;
 		this.quiet = quiet;
-		this.forceSync = forceSync;
 		this.trace = trace;
 		this.showAllChanges = showAllChanges;
 		this.repoUrl = Util.fixEmptyAndTrim(repoUrl);
 	}
+
+  /**
+   * Enables --force-sync option on repo sync command.
+	 * @param forceSync
+	 *        If this value is true, add the "--force-sync" option when
+   *        executing "repo sync".
+   */
+  @DataBoundSetter
+  public void setForceSync(final boolean forceSync) {
+    this.forceSync = forceSync;
+  }
 
 	@Override
 	public SCMRevisionState calcRevisionsFromBuild(
