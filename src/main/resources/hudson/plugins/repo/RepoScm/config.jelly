@@ -57,7 +57,7 @@
 		</f:entry>
 
 		<f:entry title="Force Sync" help="/plugin/repo/help-forceSync.html">
-			<f:checkbox name="repo.forceSync" checked="${h.defaultToTrue(scm.forceSync)}" />
+			<f:checkbox name="repo.forceSync" checked="${scm.forceSync}" />
 		</f:entry>
 
 		<f:entry title="Trace" help="/plugin/repo/help-trace.html">
