@@ -56,6 +56,10 @@
 			<f:checkbox name="repo.quiet" checked="${h.defaultToTrue(scm.quiet)}" />
 		</f:entry>
 
+		<f:entry title="Force Sync" help="/plugin/repo/help-forceSync.html">
+			<f:checkbox name="repo.forceSync" checked="${scm.forceSync}" />
+		</f:entry>
+
 		<f:entry title="Trace" help="/plugin/repo/help-trace.html">
 			<f:checkbox name="repo.trace" checked="${scm.trace}" />
 		</f:entry>

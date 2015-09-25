@@ -56,6 +56,7 @@ import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.export.Exported;
@@ -90,6 +91,7 @@ public class RepoScm extends SCM implements Serializable {
 	private final boolean currentBranch;
 	private final boolean resetFirst;
 	private final boolean quiet;
+	private boolean forceSync;
 	private final boolean trace;
 	private final boolean showAllChanges;
 
@@ -241,6 +243,13 @@ public class RepoScm extends SCM implements Serializable {
 		return quiet;
 	}
 	/**
+	 * Returns the value of forceSync.
+	 */
+	@Exported
+	public boolean isForceSync() {
+		return forceSync;
+	}
+	/**
 	 * Returns the value of trace.
 	 */
 	@Exported
@@ -327,6 +336,17 @@ public class RepoScm extends SCM implements Serializable {
 		this.showAllChanges = showAllChanges;
 		this.repoUrl = Util.fixEmptyAndTrim(repoUrl);
 	}
+
+  /**
+   * Enables --force-sync option on repo sync command.
+	 * @param forceSync
+	 *        If this value is true, add the "--force-sync" option when
+   *        executing "repo sync".
+   */
+  @DataBoundSetter
+  public void setForceSync(final boolean forceSync) {
+    this.forceSync = forceSync;
+  }
 
 	@Override
 	public SCMRevisionState calcRevisionsFromBuild(
@@ -461,6 +481,9 @@ public class RepoScm extends SCM implements Serializable {
 		}
 		if (isQuiet()) {
 			commands.add("-q");
+		}
+		if (isForceSync()) {
+			commands.add("--force-sync");
 		}
 		if (jobs > 0) {
 			commands.add("--jobs=" + jobs);
