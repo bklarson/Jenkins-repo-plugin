@@ -60,6 +60,10 @@
 			<f:checkbox name="repo.forceSync" checked="${scm.forceSync}" />
 		</f:entry>
 
+		<f:entry title="No tags" help="/plugin/repo/help-noTags.html">
+			<f:checkbox name="repo.noTags" checked="${scm.noTags}" />
+		</f:entry>
+
 		<f:entry title="Trace" help="/plugin/repo/help-trace.html">
 			<f:checkbox name="repo.trace" checked="${scm.trace}" />
 		</f:entry>
