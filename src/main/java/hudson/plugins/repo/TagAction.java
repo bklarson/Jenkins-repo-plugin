@@ -23,7 +23,7 @@
  */
 package hudson.plugins.repo;
 
-import hudson.model.AbstractBuild;
+import hudson.model.Run;
 import hudson.scm.AbstractScmTagAction;
 
 import org.kohsuke.stapler.export.ExportedBean;
@@ -42,7 +42,7 @@ public class TagAction extends AbstractScmTagAction {
 	 * @param build
 	 *            Build which we are interested in tagging
 	 */
-	TagAction(final AbstractBuild<?, ?> build) {
+	TagAction(final Run<?, ?> build) {
 		super(build);
 	}
 
