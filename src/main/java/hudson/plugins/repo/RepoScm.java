@@ -39,9 +39,7 @@ import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.Util;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
-import hudson.model.BuildListener;
+import hudson.model.Job;
 import hudson.model.ParameterDefinition;
 import hudson.model.ParametersDefinitionProperty;
 import hudson.model.Run;
@@ -65,6 +63,10 @@ import org.kohsuke.stapler.export.ExportedBean;
 import hudson.scm.PollingResult.Change;
 import hudson.util.FormValidation;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * The main entrypoint of the plugin. This class contains code to store user
  * configuration and to check out the code using a repo binary.
@@ -79,22 +81,22 @@ public class RepoScm extends SCM implements Serializable {
 	private final String manifestRepositoryUrl;
 
 	// Advanced Fields:
-	private final String manifestBranch;
-	private final String manifestFile;
-	private final String manifestGroup;
-	private final String repoUrl;
-	private final String mirrorDir;
-	private final int jobs;
-	private final int depth;
-	private final String localManifest;
-	private final String destinationDir;
-	private final boolean currentBranch;
-	private final boolean resetFirst;
-	private final boolean quiet;
-	private boolean forceSync;
-	private final boolean trace;
-	private final boolean showAllChanges;
-	private boolean noTags;
+	@CheckForNull private String manifestFile;
+	@CheckForNull private String manifestGroup;
+	@CheckForNull private String repoUrl;
+	@CheckForNull private String mirrorDir;
+	@CheckForNull private String manifestBranch;
+	@CheckForNull private int jobs;
+	@CheckForNull private int depth;
+	@CheckForNull private String localManifest;
+	@CheckForNull private String destinationDir;
+	@CheckForNull private boolean currentBranch;
+	@CheckForNull private boolean resetFirst;
+	@CheckForNull private boolean quiet;
+	@CheckForNull private boolean forceSync;
+	@CheckForNull private boolean trace;
+	@CheckForNull private boolean showAllChanges;
+	@CheckForNull private boolean noTags;
 
 	/**
 	 * Returns the manifest repository URL.
@@ -121,7 +123,7 @@ public class RepoScm extends SCM implements Serializable {
 	 * @param project       the project that is being built
 	 */
 	private EnvVars getEnvVars(final EnvVars environment,
-			final AbstractProject<?, ?> project) {
+			final Job<?, ?> project) {
 		// create an empty vars map
 		final EnvVars finalEnv = new EnvVars();
 		final ParametersDefinitionProperty params = project.getProperty(
@@ -227,7 +229,7 @@ public class RepoScm extends SCM implements Serializable {
 		return currentBranch;
 	}
 	/**
-	 * Returns the value of resetFirst.
+	 * Returns the value of resetFirst.the initial manifest file name.
 	 */
 	@Exported
 	public boolean isResetFirst() { return resetFirst; }
@@ -265,94 +267,263 @@ public class RepoScm extends SCM implements Serializable {
 	 * The constructor takes in user parameters and sets them. Each job using
 	 * the RepoSCM will call this constructor.
 	 *
-	 * @param manifestRepositoryUrl
-	 *            The URL for the manifest repository.
-	 * @param manifestBranch
-	 *            The branch of the manifest repository. Typically this is null
-	 *            or the empty string, which will cause repo to default to
-	 *            "master".
-	 * @param manifestFile
-	 *            The file to use as the repository manifest. Typically this is
-	 *            null which will cause repo to use the default of "default.xml"
-	 * @param manifestGroup
-	 *            The group name for the projects that need to be fetched.
-	 *            Typically, this is null and all projects tagged 'default' will
-	 *            be fetched.
-	 * @param mirrorDir
-	 *            The path of the mirror directory to reference when
-	 *            initializing repo.
-	 * @param jobs
-	 *            The number of concurrent jobs to use for the sync command. If
-	 *            this is 0 or negative the jobs parameter is not specified.
-	 * @param depth
-	 *            This is the depth to use when syncing.  By default this is 0
-	 *            and the full history is synced.
-	 * @param localManifest
-	 *            May be null, a string containing XML, or an URL.
-	 *            If XML, this string is written to .repo/local_manifest.xml
-	 *            If an URL, the URL is fetched and the content is written
-	 *            to .repo/local_manifest.xml
-	 * @param destinationDir
-	 *            If not null then the source is synced to the destinationDir
-	 *            subdirectory of the workspace.
-	 * @param repoUrl
-	 *            If not null then use this url as repo base,
-	 *            instead of the default
-	 * @param currentBranch
-	 *            If this value is true, add the "-c" option when executing
-	 *            "repo sync".
-	 * @param resetFirst
-	 *            If this value is true, do "repo forall -c 'git reset --hard'"
-	 *            before syncing.
-	 * @param quiet
-	 *            If this value is true, add the "-q" option when executing
-	 *            "repo sync".
-	 * @param trace
-	 *            If this value is true, add the "--trace" option when
-	 *            executing "repo init" and "repo sync".
-	 * @param showAllChanges
-	 *            If this value is true, add the "--first-parent" option to
-	 *            "git log" when determining changesets.
+	 * @param manifestRepositoryUrl The URL for the manifest repository.
+	 * @param manifestBranch        The branch of the manifest repository. Typically this is null
+	 *                              or the empty string, which will cause repo to default to
+	 *                              "master".
+	 * @param manifestFile          The file to use as the repository manifest. Typically this is
+	 *                              null which will cause repo to use the default of "default.xml"
+	 * @param manifestGroup         The group name for the projects that need to be fetched.
+	 *                              Typically, this is null and all projects tagged 'default' will
+	 *                              be fetched.
+	 * @param mirrorDir             The path of the mirror directory to reference when
+	 *                              initializing repo.
+	 * @param jobs                  The number of concurrent jobs to use for the sync command. If
+	 *                              this is 0 or negative the jobs parameter is not specified.
+	 * @param depth                 This is the depth to use when syncing.  By default this is 0
+	 *                              and the full history is synced.
+	 * @param localManifest         May be null, a string containing XML, or an URL.
+	 *                              If XML, this string is written to .repo/local_manifest.xml
+	 *                              If an URL, the URL is fetched and the content is written
+	 *                              to .repo/local_manifest.xml
+	 * @param destinationDir        If not null then the source is synced to the destinationDir
+	 *                              subdirectory of the workspace.
+	 * @param repoUrl               If not null then use this url as repo base,
+	 *                              instead of the default
+	 * @param currentBranch         If this value is true, add the "-c" option when executing
+	 *                              "repo sync".
+	 * @param resetFirst            If this value is true, do "repo forall -c 'git reset --hard'"
+	 *                              before syncing.
+	 * @param quiet                 If this value is true, add the "-q" option when executing
+	 *                              "repo sync".
+	 * @param trace                 If this value is true, add the "--trace" option when
+	 *                              executing "repo init" and "repo sync".
+	 * @param showAllChanges        If this value is true, add the "--first-parent" option to
+	 *                              "git log" when determining changesets.
+	 */
+	@Deprecated
+	public RepoScm(final String manifestRepositoryUrl,
+				   final String manifestBranch, final String manifestFile,
+				   final String manifestGroup, final String mirrorDir, final int jobs,
+				   final int depth,
+				   final String localManifest, final String destinationDir,
+				   final String repoUrl,
+				   final boolean currentBranch,
+				   final boolean resetFirst,
+				   final boolean quiet,
+				   final boolean trace,
+				   final boolean showAllChanges) {
+		this(manifestRepositoryUrl);
+		setManifestBranch(manifestBranch);
+		setManifestGroup(manifestGroup);
+		setManifestFile(manifestFile);
+		setMirrorDir(mirrorDir);
+		setJobs(jobs);
+		setDepth(depth);
+		setLocalManifest(localManifest);
+		setDestinationDir(destinationDir);
+		setCurrentBranch(currentBranch);
+		setResetFirst(resetFirst);
+		setQuiet(quiet);
+		setTrace(trace);
+		setShowAllChanges(showAllChanges);
+		setRepoUrl(repoUrl);
+	}
+
+	/**
+	 * The constructor takes in user parameters and sets them. Each job using
+	 * the RepoSCM will call this constructor.
+	 *
+	 * @param manifestRepositoryUrl The URL for the manifest repository.
 	 */
 	@DataBoundConstructor
-	public RepoScm(final String manifestRepositoryUrl,
-			final String manifestBranch, final String manifestFile,
-			final String manifestGroup, final String mirrorDir, final int jobs,
-			final int depth,
-			final String localManifest, final String destinationDir,
-			final String repoUrl,
-			final boolean currentBranch,
-			final boolean resetFirst,
-			final boolean quiet,
-			final boolean trace,
-			final boolean showAllChanges) {
+	public RepoScm(final String manifestRepositoryUrl) {
 		this.manifestRepositoryUrl = manifestRepositoryUrl;
+	}
+
+	/**
+	 * Set the manifest branch name.
+	 *
+	 * @param manifestBranch
+	 *        The branch of the manifest repository. Typically this is null
+	 *        or the empty string, which will cause repo to default to
+	 *        "master".
+     */
+	@DataBoundSetter
+	public void setManifestBranch(@CheckForNull final String manifestBranch) {
 		this.manifestBranch = Util.fixEmptyAndTrim(manifestBranch);
-		this.manifestGroup = Util.fixEmptyAndTrim(manifestGroup);
+	}
+
+	/**
+	 * Set the initial manifest file name.
+	 *
+	 * @param manifestFile
+	 *        The file to use as the repository manifest. Typically this is
+	 *        null which will cause repo to use the default of "default.xml"
+     */
+	@DataBoundSetter
+	public void setManifestFile(@CheckForNull final String manifestFile) {
 		this.manifestFile = Util.fixEmptyAndTrim(manifestFile);
+	}
+
+	/**
+	 * Set the group of projects to fetch.
+	 *
+	 * @param manifestGroup
+	 *        The group name for the projects that need to be fetched.
+	 *        Typically, this is null and all projects tagged 'default' will
+	 *        be fetched.
+     */
+	@DataBoundSetter
+	public void setManifestGroup(@CheckForNull final String manifestGroup) {
+		this.manifestGroup = Util.fixEmptyAndTrim(manifestGroup);
+	}
+
+	/**
+	 * Set the name of the mirror directory.
+	 *
+	 * @param mirrorDir
+	 *        The path of the mirror directory to reference when
+	 *        initializing repo.
+     */
+	@DataBoundSetter
+	public void setMirrorDir(@CheckForNull final String mirrorDir) {
 		this.mirrorDir = Util.fixEmptyAndTrim(mirrorDir);
+	}
+
+	/**
+	 * Set the number of jobs used for sync.
+	 *
+	 * @param jobs
+	 *        The number of concurrent jobs to use for the sync command. If
+	 *        this is 0 or negative the jobs parameter is not specified.
+     */
+	@DataBoundSetter
+	public void setJobs(@CheckForNull final int jobs) {
 		this.jobs = jobs;
+	}
+
+	/**
+	 * Set the depth used for sync.
+	 *
+	 * @param depth
+	 *        This is the depth to use when syncing.  By default this is 0
+	 *        and the full history is synced.
+     */
+	@DataBoundSetter
+	public void setDepth(@CheckForNull final int depth) {
 		this.depth = depth;
+	}
+
+	/**
+	 * Set the content of the local manifest.
+	 *
+	 * @param localManifest
+	 *        May be null, a string containing XML, or an URL.
+	 *        If XML, this string is written to .repo/local_manifest.xml
+	 *        If an URL, the URL is fetched and the content is written
+	 *        to .repo/local_manifest.xml
+     */
+	@DataBoundSetter
+	public void setLocalManifest(@CheckForNull final String localManifest) {
 		this.localManifest = Util.fixEmptyAndTrim(localManifest);
+	}
+
+	/**
+	 * Set the destination directory.
+	 *
+	 * @param destinationDir
+	 *        If not null then the source is synced to the destinationDir
+	 *        subdirectory of the workspace.
+     */
+	@DataBoundSetter
+	public void setDestinationDir(@CheckForNull final String destinationDir) {
 		this.destinationDir = Util.fixEmptyAndTrim(destinationDir);
+	}
+
+	/**
+	 * Set currentBranch.
+	 *
+	 * @param currentBranch
+	 * 		  If this value is true, add the "-c" option when executing
+	 *        "repo sync".
+     */
+	@DataBoundSetter
+	public void setCurrentBranch(@CheckForNull final boolean currentBranch) {
 		this.currentBranch = currentBranch;
+	}
+
+	/**
+	 * Set resetFirst.
+	 *
+	 * @param resetFirst
+	 *        If this value is true, do "repo forall -c 'git reset --hard'"
+	 *        before syncing.
+     */
+	@DataBoundSetter
+	public void setResetFirst(@CheckForNull final boolean resetFirst) {
 		this.resetFirst = resetFirst;
+	}
+
+	/**
+	 * Set quiet.
+	 *
+	 * @param quiet
+	 * *      If this value is true, add the "-q" option when executing
+	 *        "repo sync".
+     */
+	@DataBoundSetter
+	public void setQuiet(@CheckForNull final boolean quiet) {
 		this.quiet = quiet;
+	}
+
+	/**
+	 * Set trace.
+	 *
+	 * @param trace
+	 *        If this value is true, add the "--trace" option when
+	 *        executing "repo init" and "repo sync".
+     */
+
+	@DataBoundSetter
+	public void setTrace(@CheckForNull final boolean trace) {
 		this.trace = trace;
+	}
+
+	/**
+	 * Set showAllChanges.
+	 *
+	 * @param showAllChanges
+	 *        If this value is true, add the "--first-parent" option to
+	 *        "git log" when determining changesets.
+     */
+	@DataBoundSetter
+	public void setShowAllChanges(@CheckForNull final boolean showAllChanges) {
 		this.showAllChanges = showAllChanges;
+	}
+
+	/**
+	 * Set the repo url.
+	 *
+	 * @param repoUrl
+	 *        If not null then use this url as repo base,
+	 *        instead of the default
+     */
+	@DataBoundSetter
+	public void setRepoUrl(@CheckForNull final String repoUrl) {
 		this.repoUrl = Util.fixEmptyAndTrim(repoUrl);
 	}
 
-  /**
-   * Enables --force-sync option on repo sync command.
+	/**
+	* Enables --force-sync option on repo sync command.
 	 * @param forceSync
 	 *        If this value is true, add the "--force-sync" option when
-   *        executing "repo sync".
-   */
-  @DataBoundSetter
-  public void setForceSync(final boolean forceSync) {
-    this.forceSync = forceSync;
-  }
+	*        executing "repo sync".
+	*/
+	@DataBoundSetter
+	public void setForceSync(@CheckForNull final boolean forceSync) {
+		this.forceSync = forceSync;
+	}
 
 	/**
 	 * Set noTags.
@@ -368,9 +539,9 @@ public class RepoScm extends SCM implements Serializable {
 
 	@Override
 	public SCMRevisionState calcRevisionsFromBuild(
-			final AbstractBuild<?, ?> build, final Launcher launcher,
-			final TaskListener listener) throws IOException,
-			InterruptedException {
+			@Nonnull final Run<?, ?> build, @Nullable final FilePath workspace,
+			@Nullable final Launcher launcher, @Nonnull final TaskListener listener
+			) throws IOException, InterruptedException {
 		// We add our SCMRevisionState from within checkout, so this shouldn't
 		// be called often. However it will be called if this is the first
 		// build, if a build was aborted before it reported the repository
@@ -379,19 +550,19 @@ public class RepoScm extends SCM implements Serializable {
 	}
 
 	@Override
-	protected PollingResult compareRemoteRevisionWith(
-			final AbstractProject<?, ?> project, final Launcher launcher,
-			final FilePath workspace, final TaskListener listener,
-			final SCMRevisionState baseline) throws IOException,
+	public PollingResult compareRemoteRevisionWith(
+			@Nonnull final Job<?, ?> job, @Nullable final Launcher launcher,
+			@Nullable final FilePath workspace, @Nonnull final TaskListener listener,
+			@Nonnull final SCMRevisionState baseline) throws IOException,
 			InterruptedException {
 		SCMRevisionState myBaseline = baseline;
-		final EnvVars env = getEnvVars(null, project);
+		final EnvVars env = getEnvVars(null, job);
 		final String expandedManifestBranch = env.expand(manifestBranch);
-		final AbstractBuild<?, ?> lastBuild = project.getLastBuild();
+		final Run<?, ?> lastRun = job.getLastBuild();
 
 		if (myBaseline == null) {
 			// Probably the first build, or possibly an aborted build.
-			myBaseline = getLastState(lastBuild, expandedManifestBranch);
+			myBaseline = getLastState(lastRun, expandedManifestBranch);
 			if (myBaseline == null) {
 				return PollingResult.BUILD_NOW;
 			}
@@ -400,11 +571,12 @@ public class RepoScm extends SCM implements Serializable {
 		FilePath repoDir;
 		if (destinationDir != null) {
 			repoDir = workspace.child(destinationDir);
-			if (!repoDir.isDirectory()) {
-				repoDir.mkdirs();
-			}
 		} else {
 			repoDir = workspace;
+		}
+
+		if (!repoDir.isDirectory()) {
+			repoDir.mkdirs();
 		}
 
 		if (!checkoutCode(launcher, repoDir, env, listener.getLogger())) {
@@ -427,27 +599,28 @@ public class RepoScm extends SCM implements Serializable {
 	}
 
 	@Override
-	public boolean checkout(
-			@SuppressWarnings("rawtypes") final AbstractBuild build,
-			final Launcher launcher, final FilePath workspace,
-			final BuildListener listener, final File changelogFile)
+	public void checkout(
+			@Nonnull final Run<?, ?> build, @Nonnull final Launcher launcher,
+			@Nonnull final FilePath workspace, @Nonnull final TaskListener listener,
+			@CheckForNull final File changelogFile, @CheckForNull final SCMRevisionState baseline)
 			throws IOException, InterruptedException {
 
 		FilePath repoDir;
 		if (destinationDir != null) {
 			repoDir = workspace.child(destinationDir);
-			if (!repoDir.isDirectory()) {
-				repoDir.mkdirs();
-			}
 		} else {
 			repoDir = workspace;
 		}
 
-		AbstractProject<?, ?> proj = build.getProject();
+		if (!repoDir.isDirectory()) {
+			repoDir.mkdirs();
+		}
+
+		Job<?, ?> job = build.getParent();
 		EnvVars env = build.getEnvironment(listener);
-		env = getEnvVars(env, proj);
+		env = getEnvVars(env, job);
 		if (!checkoutCode(launcher, repoDir, env, listener.getLogger())) {
-			return false;
+			return;
 		}
 		final String manifest =
 				getStaticManifest(launcher, repoDir, listener.getLogger());
@@ -463,10 +636,11 @@ public class RepoScm extends SCM implements Serializable {
 		final RevisionState previousState =
 				getLastState(previousBuild, expandedBranch);
 
-		ChangeLog.saveChangeLog(currentState, previousState, changelogFile,
-				launcher, repoDir, showAllChanges);
+		if (changelogFile != null) {
+			ChangeLog.saveChangeLog(currentState, previousState, changelogFile,
+					launcher, repoDir, showAllChanges);
+		}
 		build.addAction(new TagAction(build));
-		return true;
 	}
 
 	private int doSync(final Launcher launcher, final FilePath workspace,
@@ -652,6 +826,19 @@ public class RepoScm extends SCM implements Serializable {
 		return (DescriptorImpl) super.getDescriptor();
 	}
 
+	@Nonnull
+	@Override
+	public String getKey() {
+		return new StringBuilder("repo")
+			.append(' ')
+			.append(getManifestRepositoryUrl())
+			.append(' ')
+			.append(getManifestFile())
+			.append(' ')
+			.append(getManifestBranch())
+			.toString();
+	}
+
 	/**
 	 * A DescriptorImpl contains variables used server-wide. In our263 case, we
 	 * only store the path to the repo executable, which defaults to just
@@ -708,6 +895,11 @@ public class RepoScm extends SCM implements Serializable {
 			} else {
 				return repoExecutable;
 			}
+		}
+
+		@Override
+		public boolean isApplicable(final Job project) {
+			return true;
 		}
 	}
 }
