@@ -620,7 +620,7 @@ public class RepoScm extends SCM implements Serializable {
 		EnvVars env = build.getEnvironment(listener);
 		env = getEnvVars(env, job);
 		if (!checkoutCode(launcher, repoDir, env, listener.getLogger())) {
-			return;
+			throw new IOException("Could not checkout");
 		}
 		final String manifest =
 				getStaticManifest(launcher, repoDir, listener.getLogger());
