@@ -399,7 +399,7 @@ public class RepoScm extends SCM implements Serializable {
 	 *        this is 0 or negative the jobs parameter is not specified.
      */
 	@DataBoundSetter
-	public void setJobs(@CheckForNull final int jobs) {
+	public void setJobs(final int jobs) {
 		this.jobs = jobs;
 	}
 
@@ -411,7 +411,7 @@ public class RepoScm extends SCM implements Serializable {
 	 *        and the full history is synced.
      */
 	@DataBoundSetter
-	public void setDepth(@CheckForNull final int depth) {
+	public void setDepth(final int depth) {
 		this.depth = depth;
 	}
 
@@ -449,7 +449,7 @@ public class RepoScm extends SCM implements Serializable {
 	 *        "repo sync".
      */
 	@DataBoundSetter
-	public void setCurrentBranch(@CheckForNull final boolean currentBranch) {
+	public void setCurrentBranch(final boolean currentBranch) {
 		this.currentBranch = currentBranch;
 	}
 
@@ -461,7 +461,7 @@ public class RepoScm extends SCM implements Serializable {
 	 *        before syncing.
      */
 	@DataBoundSetter
-	public void setResetFirst(@CheckForNull final boolean resetFirst) {
+	public void setResetFirst(final boolean resetFirst) {
 		this.resetFirst = resetFirst;
 	}
 
@@ -473,7 +473,7 @@ public class RepoScm extends SCM implements Serializable {
 	 *        "repo sync".
      */
 	@DataBoundSetter
-	public void setQuiet(@CheckForNull final boolean quiet) {
+	public void setQuiet(final boolean quiet) {
 		this.quiet = quiet;
 	}
 
@@ -486,7 +486,7 @@ public class RepoScm extends SCM implements Serializable {
      */
 
 	@DataBoundSetter
-	public void setTrace(@CheckForNull final boolean trace) {
+	public void setTrace(final boolean trace) {
 		this.trace = trace;
 	}
 
@@ -498,7 +498,7 @@ public class RepoScm extends SCM implements Serializable {
 	 *        "git log" when determining changesets.
      */
 	@DataBoundSetter
-	public void setShowAllChanges(@CheckForNull final boolean showAllChanges) {
+	public void setShowAllChanges(final boolean showAllChanges) {
 		this.showAllChanges = showAllChanges;
 	}
 
@@ -521,7 +521,7 @@ public class RepoScm extends SCM implements Serializable {
 	*        executing "repo sync".
 	*/
 	@DataBoundSetter
-	public void setForceSync(@CheckForNull final boolean forceSync) {
+	public void setForceSync(final boolean forceSync) {
 		this.forceSync = forceSync;
 	}
 
