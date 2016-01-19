@@ -339,6 +339,22 @@ public class RepoScm extends SCM implements Serializable {
 	@DataBoundConstructor
 	public RepoScm(final String manifestRepositoryUrl) {
 		this.manifestRepositoryUrl = manifestRepositoryUrl;
+		manifestFile = null;
+		manifestGroup = null;
+		repoUrl = null;
+		mirrorDir = null;
+		manifestBranch = null;
+		jobs = 0;
+		depth = 0;
+		localManifest = null;
+		destinationDir = null;
+		currentBranch = false;
+		resetFirst = false;
+		quiet = false;
+		forceSync = false;
+		trace = false;
+		showAllChanges = false;
+		noTags = false;
 	}
 
 	/**
