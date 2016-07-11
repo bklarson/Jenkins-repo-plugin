@@ -279,7 +279,7 @@ public class ChangeLogEntry extends ChangeLogSet.Entry {
 		if (authorName == null) {
 			return User.getUnknown();
 		}
-		return User.get(authorName);
+		return User.get(authorEmail);
 	}
 
 	@Override
