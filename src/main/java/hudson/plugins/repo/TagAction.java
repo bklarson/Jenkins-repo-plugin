@@ -84,7 +84,7 @@ public class TagAction extends AbstractScmTagAction {
 	 */
     public String getManifest() {
         final RevisionState revisionState =
-            getBuild().getAction(RevisionState.class);
+            getRun().getAction(RevisionState.class);
         final String manifest = revisionState.getManifest();
         return manifest;
 	}
