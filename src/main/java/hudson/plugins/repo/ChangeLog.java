@@ -25,9 +25,10 @@ package hudson.plugins.repo;
 
 import hudson.FilePath;
 import hudson.Launcher;
-import hudson.model.AbstractBuild;
+import hudson.model.Run;
 import hudson.plugins.repo.ChangeLogEntry.ModifiedFile;
 import hudson.scm.ChangeLogParser;
+import hudson.scm.RepositoryBrowser;
 import hudson.util.AtomicFileWriter;
 import hudson.util.IOException2;
 import hudson.util.XStream2;
@@ -62,11 +63,10 @@ public class ChangeLog extends ChangeLogParser {
 	// require creating git commits, which will be tricky. See the git plugin
 	// for some possibilities.
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public RepoChangeLogSet parse(
-			@SuppressWarnings("rawtypes") final AbstractBuild build,
-			final File changelogFile) throws IOException, SAXException {
+			final Run build, final RepositoryBrowser<?> browser, final File changelogFile)
+			throws IOException, SAXException {
 		final List<ChangeLogEntry> r;
 		final XStream2 xs = new XStream2();
 		final Reader reader =
@@ -79,7 +79,7 @@ public class ChangeLog extends ChangeLogParser {
 			reader.close();
 		}
 
-		return new RepoChangeLogSet(build, r);
+		return new RepoChangeLogSet(build, browser, r);
 	}
 
 	/**
