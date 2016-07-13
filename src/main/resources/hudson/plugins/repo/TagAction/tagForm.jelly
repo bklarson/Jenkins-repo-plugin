@@ -7,7 +7,7 @@
 	xmlns:f="/lib/form">
 
 	<l:layout title="Repo">
-		<st:include it="${it.build}" page="sidepanel.jelly" />
+		<st:include it="${it.run}" page="sidepanel.jelly" />
 		<l:main-panel>
 			<h1>Repo Manifest - Build #${it.build.number}</h1>	
 			To recreate this build, copy the below manifest and past it to .repo/manifest.xml, then run 'repo sync'.
