@@ -814,10 +814,11 @@ public class RepoScm extends SCM implements Serializable {
 			FilePath lm = rdir.child("local_manifest.xml");
 			lm.delete();
 			if (localManifest != null) {
-				if (localManifest.startsWith("<?xml")) {
-					lm.write(localManifest, null);
+				String expandedLocalManifest = env.expand(localManifest);
+				if (expandedLocalManifest.startsWith("<?xml")) {
+					lm.write(expandedLocalManifest, null);
 				} else {
-					URL url = new URL(localManifest);
+					URL url = new URL(expandedLocalManifest);
 					lm.copyFrom(url);
 				}
 			}
