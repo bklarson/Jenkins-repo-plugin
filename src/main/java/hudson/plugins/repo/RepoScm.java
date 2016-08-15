@@ -121,8 +121,9 @@ public class RepoScm extends SCM implements Serializable {
 	}
 
 	/**
-	 * Same as {@link #getManifestBranch()} but with <em>default</em>
-	 * values of parameters expanded.
+	 * Merge the provided environment with the <em>default</em> values of
+	 * the project parameters. The values from the provided environment
+	 * take precedence.
 	 * @param environment   an existing environment, which contains already
 	 *                      properties from the current build
 	 * @param project       the project that is being built
