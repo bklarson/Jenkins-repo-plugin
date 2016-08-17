@@ -121,8 +121,9 @@ public class RepoScm extends SCM implements Serializable {
 	}
 
 	/**
-	 * Same as {@link #getManifestBranch()} but with <em>default</em>
-	 * values of parameters expanded.
+	 * Merge the provided environment with the <em>default</em> values of
+	 * the project parameters. The values from the provided environment
+	 * take precedence.
 	 * @param environment   an existing environment, which contains already
 	 *                      properties from the current build
 	 * @param project       the project that is being built
@@ -813,10 +814,11 @@ public class RepoScm extends SCM implements Serializable {
 			FilePath lm = rdir.child("local_manifest.xml");
 			lm.delete();
 			if (localManifest != null) {
-				if (localManifest.startsWith("<?xml")) {
-					lm.write(localManifest, null);
+				String expandedLocalManifest = env.expand(localManifest);
+				if (expandedLocalManifest.startsWith("<?xml")) {
+					lm.write(expandedLocalManifest, null);
 				} else {
-					URL url = new URL(localManifest);
+					URL url = new URL(expandedLocalManifest);
 					lm.copyFrom(url);
 				}
 			}
