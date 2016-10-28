@@ -36,21 +36,21 @@ import java.util.List;
  * A POJO containing information about a single change (git commit) in a git
  * repository. These objects are used to build the change log page.
  */
-public class ChangeLogEntry extends ChangeLogSet.Entry {
+class ChangeLogEntry extends ChangeLogSet.Entry {
 
 	/**
 	 * A POJO containing information about a modified file. A RepoChangeLogEntry
 	 * contains a list of ModifiedFiles. We track the file path and how it was
 	 * modified (added, edited, removed, etc).
 	 */
-	public static class ModifiedFile implements AffectedFile {
+	static class ModifiedFile implements AffectedFile {
 
 		/**
 		 * An EditType for a Renamed file. Most version control systems don't
 		 * support file renames, so this EditType isn't in the default set
 		 * provided by Hudson.
 		 */
-		public static final EditType RENAME = new EditType("rename",
+		static final EditType RENAME = new EditType("rename",
 				"The file was renamed");
 
 		private final String path;
@@ -65,7 +65,7 @@ public class ChangeLogEntry extends ChangeLogSet.Entry {
 		 *            the action performed on the file, as reported by Git (A
 		 *            for add, D for delete, M for modified, etc)
 		 */
-		public ModifiedFile(final String path, final char action) {
+		ModifiedFile(final String path, final char action) {
 			this.path = path;
 			this.action = action;
 		}
@@ -145,12 +145,12 @@ public class ChangeLogEntry extends ChangeLogSet.Entry {
 	// CS IGNORE ParameterNumber FOR NEXT 16 LINES. REASON: I've got no
 	// better ideas. Passing in all the variables here makes sense to me, even
 	// if it is ugly.
-	public ChangeLogEntry(final String path, final String serverPath,
-			final String revision, final String authorName,
-			final String authorEmail, final String authorDate,
-			final String committerName, final String committerEmail,
-			final String committerDate, final String commitText,
-			final List<ModifiedFile> modifiedFiles) {
+	ChangeLogEntry(final String path, final String serverPath,
+				   final String revision, final String authorName,
+				   final String authorEmail, final String authorDate,
+				   final String committerName, final String committerEmail,
+				   final String committerDate, final String commitText,
+				   final List<ModifiedFile> modifiedFiles) {
 		this.path = path;
 		this.serverPath = serverPath;
 		this.revision = revision;

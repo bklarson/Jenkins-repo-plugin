@@ -765,10 +765,8 @@ public class RepoScm extends SCM implements Serializable {
 			commands.add("--no-tags");
 		}
 
-		int returnCode =
-				launcher.launch().stdout(logger).pwd(workspace)
-						.cmds(commands).envs(env).join();
-		return returnCode;
+		return launcher.launch().stdout(logger).pwd(workspace)
+                .cmds(commands).envs(env).join();
 	}
 
 	private boolean checkoutCode(final Launcher launcher,

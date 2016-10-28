@@ -34,7 +34,7 @@ import java.util.List;
  * A ChangeLogSet, which is used when generating the list of changes from one
  * build to the next.
  */
-public class RepoChangeLogSet extends ChangeLogSet<ChangeLogEntry> {
+class RepoChangeLogSet extends ChangeLogSet<ChangeLogEntry> {
 	private final List<ChangeLogEntry> logs;
 
 	/**
@@ -49,8 +49,8 @@ public class RepoChangeLogSet extends ChangeLogSet<ChangeLogEntry> {
 	 *            a list of RepoChangeLogEntry, containing every change (commit)
 	 *            which has occurred since the last build.
 	 */
-	protected RepoChangeLogSet(final Run build,
-			final RepositoryBrowser<?> browser, final List<ChangeLogEntry> logs) {
+	RepoChangeLogSet(final Run build,
+					 final RepositoryBrowser<?> browser, final List<ChangeLogEntry> logs) {
 		super(build, browser);
 		this.logs = logs;
 		for (final ChangeLogEntry log : logs) {
