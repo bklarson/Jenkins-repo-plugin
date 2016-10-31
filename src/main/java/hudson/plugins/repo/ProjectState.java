@@ -33,7 +33,7 @@ import java.util.logging.Logger;
  * when projects have changed. A repo manifest contains a list of projects, and
  * a build in Hudson has a list of ProjectStates.
  */
-public final class ProjectState {
+final class ProjectState {
 
 	private final String path;
 	private final String serverPath;
@@ -57,7 +57,7 @@ public final class ProjectState {
 	 * @param revision
 	 *            The SHA-1 revision of the project
 	 */
-	public static synchronized ProjectState constructCachedInstance(
+	static synchronized ProjectState constructCachedInstance(
 			final String path, final String serverPath, final String revision) {
 		ProjectState projectState
 			= projectStateCache.get(
@@ -156,8 +156,8 @@ public final class ProjectState {
 	 * @param revision
 	 *            The SHA-1 revision of the project
 	 */
-	public static int calculateHashCode(final String path,
-			final String serverPath, final String revision) {
+	private static int calculateHashCode(final String path,
+										 final String serverPath, final String revision) {
 		return 23 + (path == null ? 37 : path.hashCode())
 			+ (serverPath == null ? 97 : serverPath.hashCode())
 			+ (revision == null ? 389 : revision.hashCode());

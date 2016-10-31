@@ -30,7 +30,6 @@ import hudson.plugins.repo.ChangeLogEntry.ModifiedFile;
 import hudson.scm.ChangeLogParser;
 import hudson.scm.RepositoryBrowser;
 import hudson.util.AtomicFileWriter;
-import hudson.util.IOException2;
 import hudson.util.XStream2;
 
 import java.io.BufferedReader;
@@ -50,11 +49,14 @@ import org.xml.sax.SAXException;
 
 import com.thoughtworks.xstream.io.StreamException;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * Utility functions to generate and parse a file listing the differences
  * between builds. Differences are saved as a list of ChangeLogEntry.
  */
-public class ChangeLog extends ChangeLogParser {
+class ChangeLog extends ChangeLogParser {
 
 	private static Logger debug =
 		Logger.getLogger("hudson.plugins.repo.ChangeLog");
@@ -64,6 +66,7 @@ public class ChangeLog extends ChangeLogParser {
 	// for some possibilities.
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public RepoChangeLogSet parse(
 			final Run build, final RepositoryBrowser<?> browser, final File changelogFile)
 			throws IOException, SAXException {
@@ -103,9 +106,9 @@ public class ChangeLog extends ChangeLogParser {
 	 *             is thrown if we are interrupted while waiting on the git
 	 *             commands to run in a forked process.
 	 */
-	public static List<ChangeLogEntry> generateChangeLog(
-			final RevisionState currentState,
-			final RevisionState previousState, final Launcher launcher,
+	private static List<ChangeLogEntry> generateChangeLog(
+			@Nonnull final RevisionState currentState,
+			@Nullable final RevisionState previousState, final Launcher launcher,
 			final FilePath workspace, final boolean showAllChanges)
 			throws IOException,
 			InterruptedException {
@@ -238,10 +241,10 @@ public class ChangeLog extends ChangeLogParser {
 	 *             is thrown if we are interrupted while waiting on the git
 	 *             commands to run in a forked process.
 	 */
-	public static void saveChangeLog(final RevisionState currentState,
-			final RevisionState previousState, final File changelogFile,
-			final Launcher launcher, final FilePath workspace,
-			final boolean showAllChanges)
+	static void saveChangeLog(@Nonnull final RevisionState currentState,
+							  @Nullable final RevisionState previousState, final File changelogFile,
+							  final Launcher launcher, final FilePath workspace,
+							  final boolean showAllChanges)
 			throws IOException, InterruptedException {
 		List<ChangeLogEntry> logs =
 				generateChangeLog(currentState, previousState, launcher,
@@ -259,7 +262,7 @@ public class ChangeLog extends ChangeLogParser {
 			xs.toXML(logs, w);
 			w.commit();
 		} catch (final StreamException e) {
-			throw new IOException2(e);
+			throw new IOException("Could not save changelog", e);
 		} finally {
 			w.close();
 		}

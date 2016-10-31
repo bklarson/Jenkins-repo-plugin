@@ -38,6 +38,7 @@ import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.w3c.dom.Document;
@@ -50,7 +51,7 @@ import org.xml.sax.InputSource;
  * It is used to see what changed from build to build.
  */
 @SuppressWarnings("serial")
-public class RevisionState extends SCMRevisionState implements Serializable {
+class RevisionState extends SCMRevisionState implements Serializable {
 
 	private final String manifest;
 	private final Map<String, ProjectState> projects =
@@ -72,8 +73,8 @@ public class RevisionState extends SCMRevisionState implements Serializable {
 	 * @param logger
 	 *            A PrintStream for logging errors
 	 */
-	public RevisionState(final String manifest, final String manifestRevision,
-            final String branch, final PrintStream logger) {
+	RevisionState(final String manifest, final String manifestRevision,
+				  final String branch, @Nullable final PrintStream logger) {
 		this.manifest = manifest;
 		this.branch = branch;
 		try {
@@ -84,7 +85,9 @@ public class RevisionState extends SCMRevisionState implements Serializable {
 							.parse(xmlSource);
 
 			if (!doc.getDocumentElement().getNodeName().equals("manifest")) {
-				logger.println("Error - malformed manifest");
+				if (logger != null) {
+					logger.println("Error - malformed manifest");
+				}
 				return;
 			}
 			final NodeList projectNodes = doc.getElementsByTagName("project");
@@ -124,8 +127,9 @@ public class RevisionState extends SCMRevisionState implements Serializable {
 
 
 		} catch (final Exception e) {
-			logger.println(e);
-			return;
+			if (logger != null) {
+				logger.println(e);
+			}
 		}
 	}
 
@@ -187,7 +191,7 @@ public class RevisionState extends SCMRevisionState implements Serializable {
 	 * @return A List of ProjectStates from the previous repo state which have
 	 *         since been updated.
 	 */
-	public List<ProjectState> whatChanged(final RevisionState previousState) {
+	List<ProjectState> whatChanged(@Nullable final RevisionState previousState) {
 		final List<ProjectState> changes = new ArrayList<ProjectState>();
 		if (previousState == null) {
 			// Everything is new. The change log would include every change,
