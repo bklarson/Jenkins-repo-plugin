@@ -210,8 +210,8 @@ public class RepoScm extends SCM implements Serializable {
 		return depth;
 	}
 	/**
-	 * Returns the contents of the local_manifest.xml. By default, this is null
-	 * and a local_manifest.xml is neither created nor modified.
+	 * Returns the contents of the local_manifests/local.xml. By default, this is null
+	 * and a local_manifests/local.xml is neither created nor modified.
 	 */
 	@Exported
 	public String getLocalManifest() {
@@ -297,9 +297,10 @@ public class RepoScm extends SCM implements Serializable {
 	 * @param depth                 This is the depth to use when syncing.  By default this is 0
 	 *                              and the full history is synced.
 	 * @param localManifest         May be null, a string containing XML, or an URL.
-	 *                              If XML, this string is written to .repo/local_manifest.xml
+	 *                              If XML, this string is written to
+	 *                              .repo/local_manifests/local.xml
 	 *                              If an URL, the URL is fetched and the content is written
-	 *                              to .repo/local_manifest.xml
+	 *                              to .repo/local_manifests/local.xml
 	 * @param destinationDir        If not null then the source is synced to the destinationDir
 	 *                              subdirectory of the workspace.
 	 * @param repoUrl               If not null then use this url as repo base,
@@ -453,9 +454,9 @@ public class RepoScm extends SCM implements Serializable {
 	 *
 	 * @param localManifest
 	 *        May be null, a string containing XML, or an URL.
-	 *        If XML, this string is written to .repo/local_manifest.xml
+	 *        If XML, this string is written to .repo/local_manifests/local.xml
 	 *        If an URL, the URL is fetched and the content is written
-	 *        to .repo/local_manifest.xml
+	 *        to .repo/local_manifests/local.xml
      */
 	@DataBoundSetter
 	public void setLocalManifest(@CheckForNull final String localManifest) {
@@ -815,9 +816,16 @@ public class RepoScm extends SCM implements Serializable {
 		}
 		if (workspace != null) {
 			FilePath rdir = workspace.child(".repo");
-			FilePath lm = rdir.child("local_manifest.xml");
-			lm.delete();
+			FilePath lmdir = rdir.child("local_manifests");
+			// Delete the legacy local_manifest.xml in case it exists from a previous build
+			rdir.child("local_manifest.xml").delete();
+			if (lmdir.exists()) {
+				lmdir.deleteContents();
+			} else {
+				lmdir.mkdirs();
+			}
 			if (localManifest != null) {
+				FilePath lm = lmdir.child("local.xml");
 				String expandedLocalManifest = env.expand(localManifest);
 				if (expandedLocalManifest.startsWith("<?xml")) {
 					lm.write(expandedLocalManifest, null);
