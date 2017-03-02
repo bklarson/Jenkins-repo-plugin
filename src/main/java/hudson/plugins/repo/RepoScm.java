@@ -641,7 +641,7 @@ public class RepoScm extends SCM implements Serializable {
 
 		FilePath repoDir;
 		if (destinationDir != null) {
-			repoDir = workspace.child(destinationDir);
+			repoDir = workspace.child(env.expand(destinationDir));
 		} else {
 			repoDir = workspace;
 		}
@@ -682,9 +682,13 @@ public class RepoScm extends SCM implements Serializable {
 			@CheckForNull final File changelogFile, @CheckForNull final SCMRevisionState baseline)
 			throws IOException, InterruptedException {
 
+		Job<?, ?> job = build.getParent();
+		EnvVars env = build.getEnvironment(listener);
+		env = getEnvVars(env, job);
+
 		FilePath repoDir;
 		if (destinationDir != null) {
-			repoDir = workspace.child(destinationDir);
+			repoDir = workspace.child(env.expand(destinationDir));
 		} else {
 			repoDir = workspace;
 		}
@@ -693,9 +697,6 @@ public class RepoScm extends SCM implements Serializable {
 			repoDir.mkdirs();
 		}
 
-		Job<?, ?> job = build.getParent();
-		EnvVars env = build.getEnvironment(listener);
-		env = getEnvVars(env, job);
 		if (!checkoutCode(launcher, repoDir, env, listener.getLogger())) {
 			throw new IOException("Could not checkout");
 		}
