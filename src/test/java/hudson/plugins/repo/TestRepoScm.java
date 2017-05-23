@@ -50,4 +50,18 @@ public class TestRepoScm extends TestCase {
 		scm.setIgnoreProjects("projectb projecta");
 		assertEquals("projectb\nprojecta", scm.getIgnoreProjects());
 	}
+
+	public void testResetFirst() {
+		RepoScm scm = new RepoScm("http://manifesturl");
+		assertEquals(false, scm.isResetFirst());
+		scm.setResetFirst(true);
+		assertEquals(true, scm.isResetFirst());
+	}
+
+	public void testCleanFirst() {
+		RepoScm scm = new RepoScm("http://manifesturl");
+		assertEquals(false, scm.isCleanFirst());
+		scm.setCleanFirst(true);
+		assertEquals(true, scm.isCleanFirst());
+	}
 }
