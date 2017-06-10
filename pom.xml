@@ -16,8 +16,8 @@
   <url>http://wiki.jenkins-ci.org/display/JENKINS/Repo+Plugin</url>
 
   <properties>
-    <jenkins.version>1.580.1</jenkins.version>
-    <java.level>6</java.level>
+    <jenkins.version>1.651.3</jenkins.version>
+    <java.level>7</java.level>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
@@ -103,12 +103,7 @@
   </reporting>
 
   <dependencies>
-    <!--<dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.8.1</version>
-      <scope>test</scope>
-    </dependency>-->
+
   </dependencies>
 
   <distributionManagement>
