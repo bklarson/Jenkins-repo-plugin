@@ -1,3 +1,4 @@
+<?jelly escape-by-default='true'?>
 <!-- TODO: change if a build is tagged? <j:if test="${it.isTagged()}" xmlns:j="jelly:core"> -->
 
 <a href="${rootURL}/${it.build.url}tagBuild/">

@@ -246,12 +246,18 @@ public class RepoScm extends SCM implements Serializable {
 	 * Returns the value of resetFirst.the initial manifest file name.
 	 */
 	@Exported
-	public boolean isResetFirst() { return resetFirst; }
+	public boolean isResetFirst() {
+		return resetFirst;
+	}
+
 	/**
 	 * Returns the value of showAllChanges.
 	 */
 	@Exported
-	public boolean isShowAllChanges() { return showAllChanges; }
+	public boolean isShowAllChanges() {
+		return showAllChanges;
+	}
+
 	/**
 	 * Returns the value of quiet.
 	 */
@@ -266,16 +272,21 @@ public class RepoScm extends SCM implements Serializable {
 	public boolean isForceSync() {
 		return forceSync;
 	}
+
 	/**
 	 * Returns the value of trace.
 	 */
 	@Exported
-	public boolean isTrace() { return trace; }
+	public boolean isTrace() {
+		return trace;
+	}
 	/**
 	 * Returns the value of noTags.
 	 */
 	@Exported
-	public boolean isNoTags() { return noTags; }
+	public boolean isNoTags() {
+		return noTags;
+	}
 
 	/**
 	 * The constructor takes in user parameters and sets them. Each job using
