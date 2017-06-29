@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -200,22 +199,22 @@ class RevisionState extends SCMRevisionState implements Serializable {
 			debug.log(Level.FINE, "Everything is new");
 			return null;
 		}
-		final Set<String> keys = projects.keySet();
+		//final Set<String> keys = projects.keySet();
 		HashMap<String, ProjectState> previousStateCopy =
 				new HashMap<String, ProjectState>(previousState.projects);
-		for (final String key : keys) {
-			final ProjectState status = previousStateCopy.get(key);
+		for (final Map.Entry<String, ProjectState> entry : projects.entrySet()) {
+			final ProjectState status = previousStateCopy.get(entry.getKey());
 			if (status == null) {
 				// This is a new project, just added to the manifest.
-				final ProjectState newProject = projects.get(key);
-				debug.log(Level.FINE, "New project: " + key);
+				final ProjectState newProject = entry.getValue();
+				debug.log(Level.FINE, "New project: {0}", entry.getKey());
 				changes.add(ProjectState.constructCachedInstance(
 						newProject.getPath(), newProject.getServerPath(),
 						null));
-			} else if (!status.equals(projects.get(key))) {
-				changes.add(previousStateCopy.get(key));
+			} else if (!status.equals(entry.getValue())) {
+				changes.add(previousStateCopy.get(entry.getKey()));
 			}
-			previousStateCopy.remove(key);
+			previousStateCopy.remove(entry.getKey());
 		}
 		changes.addAll(previousStateCopy.values());
 		return changes;

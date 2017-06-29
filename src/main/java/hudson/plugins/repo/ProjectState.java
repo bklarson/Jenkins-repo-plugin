@@ -23,6 +23,7 @@
  */
 package hudson.plugins.repo;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -33,7 +34,7 @@ import java.util.logging.Logger;
  * when projects have changed. A repo manifest contains a list of projects, and
  * a build in Hudson has a list of ProjectStates.
  */
-final class ProjectState {
+final class ProjectState implements Serializable {
 
 	private final String path;
 	private final String serverPath;

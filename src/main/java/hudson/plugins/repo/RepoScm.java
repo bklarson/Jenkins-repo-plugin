@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -737,7 +738,7 @@ public class RepoScm extends SCM implements Serializable {
 		build.addAction(new TagAction(build));
 	}
 
-	private int doSync(final Launcher launcher, final FilePath workspace,
+	private int doSync(final Launcher launcher, @Nonnull final FilePath workspace,
 			final OutputStream logger, final EnvVars env)
 		throws IOException, InterruptedException {
 		final List<String> commands = new ArrayList<String>(4);
@@ -783,13 +784,13 @@ public class RepoScm extends SCM implements Serializable {
 	}
 
 	private boolean checkoutCode(final Launcher launcher,
-			final FilePath workspace,
+			@Nonnull final FilePath workspace,
 			final EnvVars env,
 			final OutputStream logger)
 			throws IOException, InterruptedException {
 		final List<String> commands = new ArrayList<String>(4);
 
-		debug.log(Level.INFO, "Checking out code in: " + workspace.getName());
+		debug.log(Level.INFO, "Checking out code in: {0}", workspace.getName());
 
 		commands.add(getDescriptor().getExecutable());
 		if (trace) {
@@ -826,7 +827,7 @@ public class RepoScm extends SCM implements Serializable {
 		if (returnCode != 0) {
 			return false;
 		}
-		if (workspace != null) {
+		//{
 			FilePath rdir = workspace.child(".repo");
 			FilePath lmdir = rdir.child("local_manifests");
 			// Delete the legacy local_manifest.xml in case it exists from a previous build
@@ -846,7 +847,7 @@ public class RepoScm extends SCM implements Serializable {
 					lm.copyFrom(url);
 				}
 			}
-		}
+		//}
 
 		returnCode = doSync(launcher, workspace, logger, env);
 		if (returnCode != 0) {
@@ -880,7 +881,7 @@ public class RepoScm extends SCM implements Serializable {
 		// TODO: should we pay attention to the output from this?
 		launcher.launch().stderr(logger).stdout(output).pwd(workspace)
 				.cmds(commands).envs(env).join();
-		final String manifestText = output.toString();
+		final String manifestText = new String(output.toByteArray(), Charset.defaultCharset());
 		debug.log(Level.FINEST, manifestText);
 		return manifestText;
 	}
@@ -897,7 +898,8 @@ public class RepoScm extends SCM implements Serializable {
 		launcher.launch().stderr(logger).stdout(output).pwd(
 				new FilePath(workspace, ".repo/manifests"))
 				.cmds(commands).envs(env).join();
-		final String manifestText = output.toString().trim();
+		final String manifestText = new String(output.toByteArray(),
+				Charset.defaultCharset()).trim();
 		debug.log(Level.FINEST, manifestText);
 		return manifestText;
 	}

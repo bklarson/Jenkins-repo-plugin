@@ -38,8 +38,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.Reader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -170,10 +170,10 @@ class ChangeLog extends ChangeLogParser {
 			// is definitely preferable. Most of the code can probably be copied
 			// from Gerrit.  It might be tricky with master/slave setup.
 			commands.add(change.getRevision() + ".." + newRevision);
-			final OutputStream gitOutput = new ByteArrayOutputStream();
+			final ByteArrayOutputStream gitOutput = new ByteArrayOutputStream();
 			launcher.launch().stdout(gitOutput).pwd(gitdir).cmds(commands)
 					.join();
-            final String o = gitOutput.toString();
+            final String o = new String(gitOutput.toByteArray(), Charset.defaultCharset());
 			final String[] changelogs = o.split(
                             "\\[\\[<as7d9m1R_MARK_A>\\]\\]");
             debug.log(Level.INFO, o);
