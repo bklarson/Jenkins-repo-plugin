@@ -256,7 +256,10 @@ public class RepoScm extends SCM implements Serializable {
 	 * Returns the value of cleanFirst.
 	 */
 	@Exported
-	public boolean isCleanFirst() { return cleanFirst; }
+	public boolean isCleanFirst() {
+		return cleanFirst;
+	}
+
 	/**
 	 * Returns the value of showAllChanges.
 	 */
