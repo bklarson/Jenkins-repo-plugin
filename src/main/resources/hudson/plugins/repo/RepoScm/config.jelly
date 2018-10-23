@@ -84,5 +84,9 @@
 			<f:textarea rows="10" />
 		</f:entry>
 
+		<f:entry title="No Clone Bundle" help="/plugin/repo/help-noCloneBundle.html" field="noCloneBundle">
+			<f:checkbox/>
+		</f:entry>
+
 	</f:advanced>
 </j:jelly>
