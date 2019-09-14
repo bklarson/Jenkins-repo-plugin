@@ -41,6 +41,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -118,7 +119,7 @@ class ChangeLog extends ChangeLogParser {
 		debug.log(Level.FINEST, "generateChangeLog: changes " + changes);
 		if (changes == null || changes.size() == 0) {
 			// No changes or the first job
-			return null;
+			return Collections.emptyList();
 		}
 		final List<String> commands = new ArrayList<String>(5);
 		final List<ChangeLogEntry> logs = new ArrayList<ChangeLogEntry>();
