@@ -124,17 +124,16 @@ class ChangeLog extends ChangeLogParser {
 		final List<String> commands = new ArrayList<String>(5);
 		final List<ChangeLogEntry> logs = new ArrayList<ChangeLogEntry>();
 
-
 		for (final ProjectState change : changes) {
 			debug.log(Level.FINEST, "change: " + change);
+			String newRevision = currentState.getRevision(change.getPath());
 			if (change.getRevision() == null) {
 				// This project was just added to the manifest.
 				logs.add(new ChangeLogEntry(change.getPath(), change
-						.getServerPath(), null, null, null, null, null, null,
+						.getServerPath(), newRevision, null, null, null, null, null,
 						null, "This project was added to the manifest.", null));
 				continue;
 			}
-			String newRevision = currentState.getRevision(change.getPath());
 			if (newRevision == null) {
 				// This project was just removed from the manifest.
 				logs.add(new ChangeLogEntry(change.getPath(), change

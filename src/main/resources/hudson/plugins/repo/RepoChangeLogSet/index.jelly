@@ -21,14 +21,20 @@
 					<div class="changeset-message">
 						<b>
 						Project: ${cs.path}<br/>
-						Revision: ${cs.revision}<br/>
-						Author: <a href="${rootURL}/${cs.author.url}/">${cs.author}</a>
-							&amp;lt;${cs.authorEmail}&amp;gt; on ${cs.authorDate}<br/>
-						Committer: <a href="${rootURL}/${cs.committer.url}/">${cs.committer}</a>
-							&amp;lt;${cs.committerEmail}&amp;gt; on ${cs.committerDate}<br/>
-            			</b><br/>
+						<j:if test="${cs.revision != null}">
+						    Revision: ${cs.revision}<br/>
+						</j:if>
+						<j:if test="${cs.authorName != null}">
+							Author: <a href="${rootURL}/${cs.author.url}/">${cs.author}</a>
+								&amp;lt;${cs.authorEmail}&amp;gt; on ${cs.authorDate}<br/>
+						<j:if test="${cs.committer != null}">
+						</j:if>
+							Committer: <a href="${rootURL}/${cs.committer.url}/">${cs.committer}</a>
+								&amp;lt;${cs.committerEmail}&amp;gt; on ${cs.committerDate}<br/>
+						</j:if>
+						</b><br/>
 						<pre><st:out value="${cs.msg}"/></pre>
-						
+
 						<table>
 						<j:forEach var="item" items="${cs.modifiedFiles}">
 						    <tr>
