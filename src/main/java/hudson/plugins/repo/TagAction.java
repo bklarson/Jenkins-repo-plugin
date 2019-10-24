@@ -23,68 +23,50 @@
  */
 package hudson.plugins.repo;
 
-import hudson.model.Run;
-import hudson.scm.AbstractScmTagAction;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.kohsuke.stapler.export.ExportedBean;
 
+import hudson.model.Run;
+import jenkins.model.RunAction2;
+
 /**
- * A Tag Action allows a user to tag a build. Repo doesn't support a solid tag
- * method, so right now we just display the static manifest information needed
- * to recreate the exact state of the repository when the build was ran.
+ * TagAction class. This class contains code to migrate from the old TagAction
+ * to a ManifestAction, as the TagAction (1.10.7) conflicts with the builtin tag code.
  */
 @ExportedBean(defaultVisibility = 999)
-public class TagAction extends AbstractScmTagAction {
+public class TagAction implements RunAction2 {
 
-	/**
-	 * Constructs the tag action object. Just call the superclass.
-	 *
-	 * @param build
-	 *            Build which we are interested in tagging
-	 */
-	TagAction(final Run<?, ?> build) {
-		super(build);
-	}
+    private static Logger debug = Logger.getLogger("hudson.plugins.repo.TagAction");
 
-	/**
-	 * Returns the filename to use as the badge. Called by the default badge
-	 * jelly file.
-	 */
-	public String getIconFileName() {
-		// TODO: return null if we don't want to show a link (no permissions?)
-		// TODO: if we later support actual tagging, we can use star-gold.gif
-		// for already tagged builds
-		return "star.gif";
-	}
+    @Override
+    public String getIconFileName() {
+        return null;
+    }
 
-	/**
-	 * Returns the display name to use for the tag action. Called by the default
-	 * badge jelly file.
-	 */
-	public String getDisplayName() {
-		// TODO: adjust name based on build state (tagged already or not)?
-		return "Repo Manifest";
-	}
+    @Override
+    public String getDisplayName() {
+        return null;
+    }
 
-	@Override
-	public String getTooltip() {
-		// TODO: Do we want a custom tool tip?
-		return super.getTooltip();
-	}
+    @Override
+    public String getUrlName() {
+        return null;
+    }
 
-	@Override
-	public boolean isTagged() {
-		// TODO Support some form of tagging in the future?
-		return false;
-	}
+    @Override
+    public void onAttached(final Run<?, ?> r) {
+        debug.log(Level.SEVERE, "Unexpected attach of TagAction class");
+    }
 
-	/**
-	 * Gets a String representation of the static manifest for this repo
-	 * snapshot.
-	 */
-    public String getManifest() {
-        final RevisionState revisionState =
-            getRun().getAction(RevisionState.class);
-		return revisionState.getManifest();
-	}
+    @Override
+    public void onLoad(final Run<?, ?> r) {
+        /* Migrate to a new ManifestAction */
+
+        /* Use the replaceAction method, so if this method gets called more than once,
+           we don't end up with multiple ManifestActions attached */
+        r.replaceAction(new ManifestAction(r));
+        r.getActions().remove(this);
+    }
 }
