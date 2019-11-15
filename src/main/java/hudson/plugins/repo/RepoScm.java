@@ -35,6 +35,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -104,6 +105,7 @@ public class RepoScm extends SCM implements Serializable {
 	@CheckForNull private boolean showAllChanges;
 	@CheckForNull private boolean noTags;
 	@CheckForNull private Set<String> ignoreProjects;
+	@CheckForNull private EnvVars extraEnvVars;
 	@CheckForNull private boolean noCloneBundle;
 
 	/**
@@ -153,6 +155,11 @@ public class RepoScm extends SCM implements Serializable {
 		// now merge the settings from the last build environment
 		if (environment != null) {
 			finalEnv.overrideAll(environment);
+		}
+
+		// merge extra env vars, if specified
+		if (extraEnvVars != null) {
+			finalEnv.overrideAll(extraEnvVars);
 		}
 
 		EnvVars.resolve(finalEnv);
@@ -304,6 +311,14 @@ public class RepoScm extends SCM implements Serializable {
 	@Exported
 	public boolean isNoCloneBundle() {
 		return noCloneBundle;
+	}
+
+	/**
+	 * Returns the value of extraEnvVars.
+	 */
+	@Exported
+	public Map<String, String> getExtraEnvVars() {
+		return extraEnvVars;
 	}
 
 	/**
@@ -642,6 +657,17 @@ public class RepoScm extends SCM implements Serializable {
 		}
 		this.ignoreProjects = new LinkedHashSet<String>(
 				Arrays.asList(ignoreProjects.split("\\s+")));
+	}
+
+	/**
+	 * Set additional environment variables to use. These variables will override
+	 * any parameter from the project or variable set in environment already.
+	 * @param extraEnvVars
+	 * 			  Additional environment variables to set.
+	 */
+	@DataBoundSetter
+	public void setExtraEnvVars(@CheckForNull final Map<String, String> extraEnvVars) {
+		this.extraEnvVars = extraEnvVars != null ? new EnvVars(extraEnvVars) : null;
 	}
 
 	@Override
