@@ -106,6 +106,7 @@ public class RepoScm extends SCM implements Serializable {
 	@CheckForNull private boolean noTags;
 	@CheckForNull private Set<String> ignoreProjects;
 	@CheckForNull private EnvVars extraEnvVars;
+	@CheckForNull private boolean noCloneBundle;
 
 	/**
 	 * Returns the manifest repository URL.
@@ -304,6 +305,13 @@ public class RepoScm extends SCM implements Serializable {
 	public boolean isNoTags() {
 		return noTags;
 	}
+	/**
+	 * Returns the value of noCloneBundle.
+	 */
+	@Exported
+	public boolean isNoCloneBundle() {
+		return noCloneBundle;
+	}
 
 	/**
 	 * Returns the value of extraEnvVars.
@@ -411,6 +419,7 @@ public class RepoScm extends SCM implements Serializable {
 		showAllChanges = false;
 		noTags = false;
 		ignoreProjects = Collections.<String>emptySet();
+		noCloneBundle = false;
 	}
 
 	/**
@@ -584,6 +593,18 @@ public class RepoScm extends SCM implements Serializable {
 	@DataBoundSetter
 	public void setShowAllChanges(final boolean showAllChanges) {
 		this.showAllChanges = showAllChanges;
+	}
+
+	/**
+	 * Set noCloneBundle.
+	 *
+	 * @param noCloneBundle
+	 *        If this value is true, add the "--no-clone-bundle" option when
+	 *        running the "repo init" and "repo sync" commands.
+     */
+	@DataBoundSetter
+	public void setNoCloneBundle(final boolean noCloneBundle) {
+		this.noCloneBundle = noCloneBundle;
 	}
 
 	/**
@@ -840,6 +861,9 @@ public class RepoScm extends SCM implements Serializable {
 		if (isNoTags()) {
 			commands.add("--no-tags");
 		}
+		if (isNoCloneBundle()) {
+			commands.add("--no-clone-bundle");
+		}
 
 		return launcher.launch().stdout(logger).pwd(workspace)
                 .cmds(commands).envs(env).join();
@@ -882,6 +906,9 @@ public class RepoScm extends SCM implements Serializable {
 		}
 		if (depth != 0) {
 			commands.add("--depth=" + depth);
+		}
+		if (isNoCloneBundle()) {
+			commands.add("--no-clone-bundle");
 		}
 		int returnCode =
 				launcher.launch().stdout(logger).pwd(workspace)

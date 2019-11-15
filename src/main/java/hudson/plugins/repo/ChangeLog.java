@@ -28,6 +28,7 @@ import hudson.Launcher;
 import hudson.model.Run;
 import hudson.plugins.repo.ChangeLogEntry.ModifiedFile;
 import hudson.scm.ChangeLogParser;
+import hudson.scm.EditType;
 import hudson.scm.RepositoryBrowser;
 import hudson.util.AtomicFileWriter;
 import hudson.util.XStream2;
@@ -197,12 +198,58 @@ class ChangeLog extends ChangeLogParser {
 				final List<ModifiedFile> modifiedFiles =
 						new ArrayList<ModifiedFile>();
 				for (final String fileLine : fileLines) {
+					// Format of these lines is described in the "RAW OUTPUT
+					// FORMAT" section of "git diff --help"...
+					//
+					// An output line is formatted this way:
+					//     in-place edit  :100644 100644 bcd1234... 0123456... M file0
+					//     copy-edit      :100644 100644 abcd123... 1234567... C68 file1 file2
+					//     rename-edit    :100644 100644 abcd123... 1234567... R86 file1 file3
+					//     create         :000000 100644 0000000... 1234567... A file4
+					//     delete         :100644 000000 1234567... 0000000... D file5
+					//     unmerged       :000000 000000 0000000... 0000000... U file6
+					//
+					// Note that the filenames are preceded by tabs rather than spaces.
+
 					if (!fileLine.startsWith(":")) {
 						continue;
 					}
-					final char action = fileLine.substring(37, 38).charAt(0);
-					final String path = fileLine.substring(39);
-					modifiedFiles.add(new ModifiedFile(path, action));
+
+					final String[] spaceParts = fileLine.split(" ", 5);
+					if (spaceParts.length != 5) {
+						continue;
+					}
+
+					final String[] tabParts = spaceParts[4].split("\t");
+					if (tabParts[0].isEmpty()) {
+						continue;
+					}
+					final char action = tabParts[0].charAt(0);
+					final int expectedLen = ((action == 'C') || (action == 'R')) ? 3 : 2;
+					if (tabParts.length != expectedLen) {
+						continue;
+					}
+
+					switch (action) {
+						case 'M':
+							modifiedFiles.add(new ModifiedFile(tabParts[1], EditType.EDIT));
+							break;
+						case 'C':
+							modifiedFiles.add(new ModifiedFile(tabParts[2], EditType.ADD));
+							break;
+						case 'R':
+							modifiedFiles.add(new ModifiedFile(tabParts[1], EditType.DELETE));
+							modifiedFiles.add(new ModifiedFile(tabParts[2], EditType.ADD));
+							break;
+						case 'A':
+							modifiedFiles.add(new ModifiedFile(tabParts[1], EditType.ADD));
+							break;
+						case 'D':
+							modifiedFiles.add(new ModifiedFile(tabParts[1], EditType.DELETE));
+							break;
+						default:
+							continue;
+					}
 				}
 				ChangeLogEntry nc = new ChangeLogEntry(change.getPath(), change
 						.getServerPath(), revision, authorName, authorEmail,

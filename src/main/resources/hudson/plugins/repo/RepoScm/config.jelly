@@ -7,81 +7,85 @@
 	xmlns:t="/lib/hudson"
 	xmlns:f="/lib/form">
 
-	<f:entry title="Manifest Repository Url" help="/plugin/repo/help-manifestRepositoryUrl.html">
-		<f:textbox name="repo.manifestRepositoryUrl" value="${scm.manifestRepositoryUrl}" />
+	<f:entry title="Manifest Repository Url" help="/plugin/repo/help-manifestRepositoryUrl.html" field="manifestRepositoryUrl">
+		<f:textbox/>
 	</f:entry>
 
 	<f:advanced>
 
-		<f:entry title="Manifest Branch" help="/plugin/repo/help-manifestBranch.html">
-			<f:textbox name="repo.manifestBranch" value="${scm.manifestBranch}" />
+		<f:entry title="Manifest Branch" help="/plugin/repo/help-manifestBranch.html" field="manifestBranch">
+			<f:textbox/>
 		</f:entry>
 
-		<f:entry title="Manifest File" help="/plugin/repo/help-manifestFile.html">
-			<f:textbox name="repo.manifestFile" value="${scm.manifestFile}" />
+		<f:entry title="Manifest File" help="/plugin/repo/help-manifestFile.html" field="manifestFile">
+			<f:textbox/>
 		</f:entry>
 
-		<f:entry title="Group" help="/plugin/repo/help-manifestGroup.html">
-			<f:textbox name="repo.manifestGroup" value="${scm.manifestGroup}" />
+		<f:entry title="Group" help="/plugin/repo/help-manifestGroup.html" field="manifestGroup">
+			<f:textbox/>
 		</f:entry>
 		
-		<f:entry title="IgnoreChanges" help="/plugin/repo/help-ignoreChanges.html">
-			<f:textarea name="repo.ignoreProjects" value="${scm.ignoreProjects}" rows="3" />
+		<f:entry title="IgnoreChanges" help="/plugin/repo/help-ignoreChanges.html" field="ignoreProjects">
+			<f:textarea rows="3" />
 		</f:entry>
 
-		<f:entry title="Destination Directory" help="/plugin/repo/help-destinationDir.html">
-			<f:textbox name="repo.destinationDir" value="${scm.destinationDir}" />
+		<f:entry title="Destination Directory" help="/plugin/repo/help-destinationDir.html" field="destinationDir">
+			<f:textbox/>
 		</f:entry>
 
-		<f:entry title="Repo Url" help="/plugin/repo/help-repoUrl.html">
-			<f:textbox name="repo.repoUrl" value="${scm.repoUrl}" />
+		<f:entry title="Repo Url" help="/plugin/repo/help-repoUrl.html" field="repoUrl">
+			<f:textbox/>
 		</f:entry>
 
-		<f:entry title="Mirror Directory" help="/plugin/repo/help-mirrorDir.html">
-			<f:textbox name="repo.mirrorDir" value="${scm.mirrorDir}" />
+		<f:entry title="Mirror Directory" help="/plugin/repo/help-mirrorDir.html" field="mirrorDir">
+			<f:textbox/>
 		</f:entry>
 
-		<f:entry title="Jobs" help="/plugin/repo/help-jobs.html">
-			<f:textbox name="repo.jobs" value="${scm.jobs}" clazz="number" />
+		<f:entry title="Jobs" help="/plugin/repo/help-jobs.html" field="jobs">
+			<f:textbox clazz="number"/>
 		</f:entry>
 
-		<f:entry title="Depth" help="/plugin/repo/help-depth.html">
-			<f:textbox name="repo.depth" value="${scm.depth}" clazz="number" />
+		<f:entry title="Depth" help="/plugin/repo/help-depth.html" field="depth">
+			<f:textbox clazz="number" />
 		</f:entry>
 
-		<f:entry title="Current Branch" help="/plugin/repo/help-currentBranch.html">
-			<f:checkbox name="repo.currentBranch" checked="${h.defaultToTrue(scm.currentBranch)}" />
+		<f:entry title="Current Branch" help="/plugin/repo/help-currentBranch.html" field="currentBranch">
+			<f:checkbox default="true"/>
 		</f:entry>
 
-		<f:entry title="Reset first" help="/plugin/repo/help-resetFirst.html">
-			<f:checkbox name="repo.resetFirst" checked="${scm.resetFirst}" />
+		<f:entry title="Reset first" help="/plugin/repo/help-resetFirst.html" field="resetFirst">
+			<f:checkbox/>
 		</f:entry>
                 <f:entry title="Clean first" help="/plugin/repo/help-cleanFirst.html">
                         <f:checkbox name="repo.cleanFirst" checked="${scm.cleanFirst}" />
                 </f:entry>
 
-		<f:entry title="Quiet" help="/plugin/repo/help-quiet.html">
-			<f:checkbox name="repo.quiet" checked="${h.defaultToTrue(scm.quiet)}" />
+		<f:entry title="Quiet" help="/plugin/repo/help-quiet.html" field="quiet">
+			<f:checkbox default="true"/>
 		</f:entry>
 
-		<f:entry title="Force Sync" help="/plugin/repo/help-forceSync.html">
-			<f:checkbox name="repo.forceSync" checked="${scm.forceSync}" />
+		<f:entry title="Force Sync" help="/plugin/repo/help-forceSync.html" field="forceSync">
+			<f:checkbox/>
 		</f:entry>
 
-		<f:entry title="No tags" help="/plugin/repo/help-noTags.html">
-			<f:checkbox name="repo.noTags" checked="${scm.noTags}" />
+		<f:entry title="No tags" help="/plugin/repo/help-noTags.html" field="noTags">
+			<f:checkbox/>
 		</f:entry>
 
-		<f:entry title="Trace" help="/plugin/repo/help-trace.html">
-			<f:checkbox name="repo.trace" checked="${scm.trace}" />
+		<f:entry title="Trace" help="/plugin/repo/help-trace.html" field="trace">
+			<f:checkbox/>
 		</f:entry>
 
-		<f:entry title="Show all changes" help="/plugin/repo/help-showAllChanges.html">
-			<f:checkbox name="repo.showAllChanges" checked="${scm.showAllChanges}" />
+		<f:entry title="Show all changes" help="/plugin/repo/help-showAllChanges.html" field="showAllChanges">
+			<f:checkbox/>
 		</f:entry>
 
-		<f:entry title="Local Manifest" help="/plugin/repo/help-localManifest.html">
-			<f:textarea name="repo.localManifest" value="${scm.localManifest}" rows="10" />
+		<f:entry title="Local Manifest" help="/plugin/repo/help-localManifest.html" field="localManifest">
+			<f:textarea rows="10" />
+		</f:entry>
+
+		<f:entry title="No Clone Bundle" help="/plugin/repo/help-noCloneBundle.html" field="noCloneBundle">
+			<f:checkbox/>
 		</f:entry>
 
 	</f:advanced>
