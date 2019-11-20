@@ -89,6 +89,7 @@ public class RepoScm extends SCM implements Serializable {
 	// Advanced Fields:
 	@CheckForNull private String manifestFile;
 	@CheckForNull private String manifestGroup;
+	@CheckForNull private String manifestPlatform;
 	@CheckForNull private String repoUrl;
 	@CheckForNull private String mirrorDir;
 	@CheckForNull private String manifestBranch;
@@ -184,6 +185,15 @@ public class RepoScm extends SCM implements Serializable {
 	@Exported
 	public String getManifestGroup() {
 		return manifestGroup;
+	}
+
+	/**
+	 * Returns the platform of projects to fetch. By default, this is null and
+	 * repo will automatically fetch the appropriate platform.
+	 */
+	@CheckForNull
+	public String getManifestPlatform() {
+		return manifestPlatform;
 	}
 
 	/**
@@ -478,6 +488,19 @@ public class RepoScm extends SCM implements Serializable {
 	@DataBoundSetter
 	public void setManifestGroup(@CheckForNull final String manifestGroup) {
 		this.manifestGroup = Util.fixEmptyAndTrim(manifestGroup);
+	}
+
+	/**
+	 * Set the platform of projects to fetch.
+	 *
+	 * @param manifestPlatform
+	 *        The platform for the projects that need to be fetched.
+	 *        Typically, this is null and only projects for the current platform
+	 *        will be fetched.
+	 */
+	@DataBoundSetter
+	public void setManifestPlatform(@CheckForNull final String manifestPlatform) {
+		this.manifestPlatform = manifestPlatform;
 	}
 
 	/**
@@ -949,6 +972,10 @@ public class RepoScm extends SCM implements Serializable {
 		if (manifestGroup != null) {
 			commands.add("-g");
 			commands.add(env.expand(manifestGroup));
+		}
+		if (manifestPlatform != null) {
+			commands.add("-p");
+			commands.add(env.expand(manifestPlatform));
 		}
 		if (depth != 0) {
 			commands.add("--depth=" + depth);
