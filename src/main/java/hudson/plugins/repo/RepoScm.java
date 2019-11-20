@@ -983,6 +983,12 @@ public class RepoScm extends SCM implements Serializable {
 		if (isNoCloneBundle()) {
 			commands.add("--no-clone-bundle");
 		}
+		if (currentBranch) {
+			commands.add("--current-branch");
+		}
+		if (noTags) {
+			commands.add("--no-tags");
+		}
 		if (manifestSubmodules) {
 			commands.add("--submodules");
 		}
