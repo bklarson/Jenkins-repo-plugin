@@ -89,6 +89,7 @@ public class RepoScm extends SCM implements Serializable {
 	// Advanced Fields:
 	@CheckForNull private String manifestFile;
 	@CheckForNull private String manifestGroup;
+	@CheckForNull private String manifestPlatform;
 	@CheckForNull private String repoUrl;
 	@CheckForNull private String mirrorDir;
 	@CheckForNull private String manifestBranch;
@@ -104,6 +105,8 @@ public class RepoScm extends SCM implements Serializable {
 	@CheckForNull private boolean trace;
 	@CheckForNull private boolean showAllChanges;
 	@CheckForNull private boolean noTags;
+	@CheckForNull private boolean manifestSubmodules;
+	@CheckForNull private boolean fetchSubmodules;
 	@CheckForNull private Set<String> ignoreProjects;
 	@CheckForNull private EnvVars extraEnvVars;
 	@CheckForNull private boolean noCloneBundle;
@@ -182,6 +185,15 @@ public class RepoScm extends SCM implements Serializable {
 	@Exported
 	public String getManifestGroup() {
 		return manifestGroup;
+	}
+
+	/**
+	 * Returns the platform of projects to fetch. By default, this is null and
+	 * repo will automatically fetch the appropriate platform.
+	 */
+	@CheckForNull
+	public String getManifestPlatform() {
+		return manifestPlatform;
 	}
 
 	/**
@@ -298,6 +310,7 @@ public class RepoScm extends SCM implements Serializable {
 	public boolean isTrace() {
 		return trace;
 	}
+
 	/**
 	 * Returns the value of noTags.
 	 */
@@ -311,6 +324,21 @@ public class RepoScm extends SCM implements Serializable {
 	@Exported
 	public boolean isNoCloneBundle() {
 		return noCloneBundle;
+	}
+
+	/**
+	 * Returns the value of manifestSubmodules.
+	 */
+	@Exported
+	public boolean isManifestSubmodules() {
+		return manifestSubmodules;
+	}
+
+	/**
+	 * Returns the value of fetchSubmodules.
+	 */
+	public boolean isFetchSubmodules() {
+		return fetchSubmodules;
 	}
 
 	/**
@@ -418,6 +446,8 @@ public class RepoScm extends SCM implements Serializable {
 		trace = false;
 		showAllChanges = false;
 		noTags = false;
+		manifestSubmodules = false;
+		fetchSubmodules = false;
 		ignoreProjects = Collections.<String>emptySet();
 		noCloneBundle = false;
 	}
@@ -458,6 +488,19 @@ public class RepoScm extends SCM implements Serializable {
 	@DataBoundSetter
 	public void setManifestGroup(@CheckForNull final String manifestGroup) {
 		this.manifestGroup = Util.fixEmptyAndTrim(manifestGroup);
+	}
+
+	/**
+	 * Set the platform of projects to fetch.
+	 *
+	 * @param manifestPlatform
+	 *        The platform for the projects that need to be fetched.
+	 *        Typically, this is null and only projects for the current platform
+	 *        will be fetched.
+	 */
+	@DataBoundSetter
+	public void setManifestPlatform(@CheckForNull final String manifestPlatform) {
+		this.manifestPlatform = manifestPlatform;
 	}
 
 	/**
@@ -640,6 +683,30 @@ public class RepoScm extends SCM implements Serializable {
 	@DataBoundSetter
 	public final void setNoTags(final boolean noTags) {
 		this.noTags = noTags;
+	}
+
+	/**
+	 * Set manifestSubmodules.
+	 *
+	 * @param manifestSubmodules
+	 *            If this value is true, add the "--submodules" option when
+	 *            executing "repo init".
+	 */
+	@DataBoundSetter
+	public void setManifestSubmodules(final boolean manifestSubmodules) {
+		this.manifestSubmodules = manifestSubmodules;
+	}
+
+	/**
+	 * Set fetchSubmodules.
+	 *
+	 * @param fetchSubmodules
+	 *            If this value is true, add the "--fetch-submodules" option when
+	 *            executing "repo sync".
+	 */
+	@DataBoundSetter
+	public void setFetchSubmodules(final boolean fetchSubmodules) {
+		this.fetchSubmodules = fetchSubmodules;
 	}
 
 	/**
@@ -864,7 +931,9 @@ public class RepoScm extends SCM implements Serializable {
 		if (isNoCloneBundle()) {
 			commands.add("--no-clone-bundle");
 		}
-
+		if (fetchSubmodules) {
+			commands.add("--fetch-submodules");
+		}
 		return launcher.launch().stdout(logger).pwd(workspace)
                 .cmds(commands).envs(env).join();
 	}
@@ -904,11 +973,24 @@ public class RepoScm extends SCM implements Serializable {
 			commands.add("-g");
 			commands.add(env.expand(manifestGroup));
 		}
+		if (manifestPlatform != null) {
+			commands.add("-p");
+			commands.add(env.expand(manifestPlatform));
+		}
 		if (depth != 0) {
 			commands.add("--depth=" + depth);
 		}
 		if (isNoCloneBundle()) {
 			commands.add("--no-clone-bundle");
+		}
+		if (currentBranch) {
+			commands.add("--current-branch");
+		}
+		if (noTags) {
+			commands.add("--no-tags");
+		}
+		if (manifestSubmodules) {
+			commands.add("--submodules");
 		}
 		int returnCode =
 				launcher.launch().stdout(logger).pwd(workspace)
