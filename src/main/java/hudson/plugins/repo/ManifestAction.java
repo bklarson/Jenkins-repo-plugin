@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 
 import org.kohsuke.stapler.export.ExportedBean;
 
+import hudson.model.BuildBadgeAction;
 import hudson.model.Run;
 import jenkins.model.RunAction2;
 
@@ -36,7 +37,7 @@ import jenkins.model.RunAction2;
  * to recreate the exact state of the repository when the build was run.
  */
 @ExportedBean(defaultVisibility = 999)
-public class ManifestAction implements RunAction2 {
+public class ManifestAction implements RunAction2, BuildBadgeAction  {
 
 	private static Logger debug = Logger
 		.getLogger("hudson.plugins.repo.ManifestAction");
