@@ -500,7 +500,7 @@ public class RepoScm extends SCM implements Serializable {
 	 */
 	@DataBoundSetter
 	public void setManifestPlatform(@CheckForNull final String manifestPlatform) {
-		this.manifestPlatform = manifestPlatform;
+		this.manifestPlatform = Util.fixEmptyAndTrim(manifestPlatform);
 	}
 
 	/**
