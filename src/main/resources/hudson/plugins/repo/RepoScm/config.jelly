@@ -41,6 +41,10 @@
 			<f:textbox/>
 		</f:entry>
 
+		<f:entry title="Repo Branch" help="/plugin/repo/help-repoBranch.html" field="repoBranch">
+		    <f:textbox/>
+		</f:entry>
+
 		<f:entry title="Mirror Directory" help="/plugin/repo/help-mirrorDir.html" field="mirrorDir">
 			<f:textbox/>
 		</f:entry>

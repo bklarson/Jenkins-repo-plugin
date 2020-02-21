@@ -91,6 +91,7 @@ public class RepoScm extends SCM implements Serializable {
 	@CheckForNull private String manifestGroup;
 	@CheckForNull private String manifestPlatform;
 	@CheckForNull private String repoUrl;
+	@CheckForNull private String repoBranch;
 	@CheckForNull private String mirrorDir;
 	@CheckForNull private String manifestBranch;
 	@CheckForNull private int jobs;
@@ -203,6 +204,15 @@ public class RepoScm extends SCM implements Serializable {
 	@Exported
 	public String getRepoUrl() {
 		return repoUrl;
+	}
+
+	/**
+	 * Returns the repo branch. by default, this is null and
+	 * repo is used from the default branch
+	 */
+	@Exported
+	public String getRepoBranch() {
+		return repoBranch;
 	}
 
 	/**
@@ -376,7 +386,7 @@ public class RepoScm extends SCM implements Serializable {
 	 * @param destinationDir        If not null then the source is synced to the destinationDir
 	 *                              subdirectory of the workspace.
 	 * @param repoUrl               If not null then use this url as repo base,
-	 *                              instead of the default
+	 *                              instead of the default.
 	 * @param currentBranch         If this value is true, add the "-c" option when executing
 	 *                              "repo sync".
 	 * @param resetFirst            If this value is true, do "repo forall -c 'git reset --hard'"
@@ -432,6 +442,7 @@ public class RepoScm extends SCM implements Serializable {
 		manifestFile = null;
 		manifestGroup = null;
 		repoUrl = null;
+		repoBranch = null;
 		mirrorDir = null;
 		manifestBranch = null;
 		jobs = 0;
@@ -660,6 +671,18 @@ public class RepoScm extends SCM implements Serializable {
 	@DataBoundSetter
 	public void setRepoUrl(@CheckForNull final String repoUrl) {
 		this.repoUrl = Util.fixEmptyAndTrim(repoUrl);
+	}
+
+	/**
+	 * Set the repo branch.
+	 *
+	 * @param repoBranch
+	 *        If not null then use this as branch for repo itself
+	 *        instead of the default.
+	 */
+	@DataBoundSetter
+	public void setRepoBranch(@CheckForNull final String repoBranch) {
+		this.repoBranch = Util.fixEmptyAndTrim(repoBranch);
 	}
 
 	/**
@@ -968,6 +991,9 @@ public class RepoScm extends SCM implements Serializable {
 		if (repoUrl != null) {
 			commands.add("--repo-url=" + env.expand(repoUrl));
 			commands.add("--no-repo-verify");
+		}
+		if (repoBranch != null) {
+			commands.add("--repo-branch=" + env.expand(repoBranch));
 		}
 		if (manifestGroup != null) {
 			commands.add("-g");
