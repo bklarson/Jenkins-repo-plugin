@@ -23,6 +23,7 @@
  */
 package hudson.plugins.repo;
 
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,6 +32,8 @@ import org.kohsuke.stapler.export.ExportedBean;
 import hudson.model.BuildBadgeAction;
 import hudson.model.Run;
 import jenkins.model.RunAction2;
+
+import javax.annotation.CheckForNull;
 
 /**
  * A Manifest Action displays the static manifest information needed
@@ -45,11 +48,38 @@ public class ManifestAction implements RunAction2, BuildBadgeAction  {
 	private transient Run<?, ?> run;
 
 	/**
+	 * Allow disambiguation of the action url when multiple {@link RevisionState} actions present.
+	 */
+	@CheckForNull
+	private Integer index;
+
+	/**
 	 * Constructs the manifest action object.
 	 * @param run Build whose manifest we wish to display.
 	 */
 	ManifestAction(final Run<?, ?> run) {
 		this.run = run;
+	}
+
+	/**
+	 * Sets an identifier used to disambiguate multiple {@link RevisionState} actions attached to a
+	 * {@link Run}.
+	 *
+	 * @param index the index, indexes less than or equal to {@code 1} will be discarded.
+	 */
+	public void setIndex(final Integer index) {
+		this.index = index == null || index <= 1 ? null : index;
+	}
+
+	/**
+	 * Gets the identifier used to disambiguate multiple {@link RevisionState} actions attached to
+	 * a {@link Run}.
+	 *
+	 * @return the index.
+	 */
+	@CheckForNull
+	public Integer getIndex() {
+		return index;
 	}
 
 	@Override
@@ -87,7 +117,7 @@ public class ManifestAction implements RunAction2, BuildBadgeAction  {
 	 * Returns the name of the Url to use for the action.
 	 */
 	public final String getUrlName() {
-		return "repo-manifest";
+		return index == null ? "repo-manifest" : "repo-manifest-" + index;
 	}
 
 	/**
@@ -96,9 +126,10 @@ public class ManifestAction implements RunAction2, BuildBadgeAction  {
 	public String getManifest() {
 		String result = "";
 		try {
-			final RevisionState revisionState = run.getAction(RevisionState.class);
-			if (revisionState != null) {
-				result = revisionState.getManifest();
+			final int i = index == null ? 0 : index;
+			final List<RevisionState> revisionStates = run.getActions(RevisionState.class);
+			if (revisionStates.size() >= i) {
+				result = revisionStates.get(i).getManifest();
 			}
 		} catch (Exception e) {
 			debug.log(Level.WARNING, "Error getting revision state {0}", e.getMessage());
