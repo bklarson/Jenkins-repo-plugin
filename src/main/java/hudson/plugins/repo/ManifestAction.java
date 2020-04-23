@@ -23,6 +23,7 @@
  */
 package hudson.plugins.repo;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -40,10 +41,10 @@ import javax.annotation.CheckForNull;
  * to recreate the exact state of the repository when the build was run.
  */
 @ExportedBean(defaultVisibility = 999)
-public class ManifestAction implements RunAction2, BuildBadgeAction  {
-
+public class ManifestAction implements RunAction2, Serializable, BuildBadgeAction {
 	private static Logger debug = Logger
 		.getLogger("hudson.plugins.repo.ManifestAction");
+	private static final long serialVersionUID = 1;
 
 	private transient Run<?, ?> run;
 
@@ -126,9 +127,9 @@ public class ManifestAction implements RunAction2, BuildBadgeAction  {
 	public String getManifest() {
 		String result = "";
 		try {
-			final int i = index == null ? 0 : index;
+			final int i = index == null ? 0 : index - 1;
 			final List<RevisionState> revisionStates = run.getActions(RevisionState.class);
-			if (revisionStates.size() >= i) {
+			if (revisionStates.size() > i && i >= 0) {
 				result = revisionStates.get(i).getManifest();
 			}
 		} catch (Exception e) {

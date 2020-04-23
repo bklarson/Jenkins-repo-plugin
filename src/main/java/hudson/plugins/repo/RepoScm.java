@@ -800,12 +800,15 @@ public class RepoScm extends SCM implements Serializable {
 			InterruptedException {
 		SCMRevisionState myBaseline = baseline;
 		final EnvVars env = getEnvVars(null, job);
+		final String expandedManifestUrl = env.expand(manifestRepositoryUrl);
 		final String expandedManifestBranch = env.expand(manifestBranch);
+		final String expandedManifestFile = env.expand(manifestFile);
 		final Run<?, ?> lastRun = job.getLastBuild();
 
 		if (myBaseline == SCMRevisionState.NONE) {
 			// Probably the first build, or possibly an aborted build.
-			myBaseline = getLastState(lastRun, expandedManifestBranch);
+			myBaseline = getLastState(lastRun, expandedManifestUrl,
+					expandedManifestBranch, expandedManifestFile);
 			if (myBaseline == SCMRevisionState.NONE) {
 				return PollingResult.BUILD_NOW;
 			}
@@ -831,7 +834,8 @@ public class RepoScm extends SCM implements Serializable {
 		final RevisionState currentState = new RevisionState(
 				getStaticManifest(launcher, repoDir, listener.getLogger(), env),
 				getManifestRevision(launcher, repoDir, listener.getLogger(), env),
-				expandedManifestBranch, listener.getLogger());
+				expandedManifestUrl, expandedManifestBranch, expandedManifestFile,
+				listener.getLogger());
 
 		final Change change;
 		if (currentState.equals(myBaseline)) {
@@ -876,15 +880,18 @@ public class RepoScm extends SCM implements Serializable {
 				getStaticManifest(launcher, repoDir, listener.getLogger(), env);
 		final String manifestRevision =
 				getManifestRevision(launcher, repoDir, listener.getLogger(), env);
+        final String expandedUrl = env.expand(manifestRepositoryUrl);
 		final String expandedBranch = env.expand(manifestBranch);
+        final String expandedFile = env.expand(manifestFile);
 		final RevisionState currentState =
-				new RevisionState(manifest, manifestRevision, expandedBranch,
-						listener.getLogger());
+				new RevisionState(manifest, manifestRevision, expandedUrl,
+                        expandedBranch, expandedFile, listener.getLogger());
+		// TODO: check if already present...
 		build.addAction(currentState);
 
 		final Run previousBuild = build.getPreviousBuild();
 		final SCMRevisionState previousState =
-				getLastState(previousBuild, expandedBranch);
+				getLastState(previousBuild, expandedUrl, expandedBranch, expandedFile);
 
 		if (changelogFile != null) {
 			ChangeLog.saveChangeLog(
@@ -1105,21 +1112,31 @@ public class RepoScm extends SCM implements Serializable {
 		return manifestText;
 	}
 
+    private boolean isRelevantState(final RevisionState state, final String url,
+                                    final String branch, final String file) {
+	    return StringUtils.equals(state.getBranch(), branch)
+				&& StringUtils.equals(state.getUrl(), url)
+				&& StringUtils.equals(state.getFile(), file);
+    }
+
 	@Nonnull
 	private SCMRevisionState getLastState(final Run<?, ?> lastBuild,
-			final String expandedManifestBranch) {
+			final String expandedManifestUrl, final String expandedManifestBranch,
+			final String expandedManifestFile) {
 		if (lastBuild == null) {
 			return RevisionState.NONE;
 		}
-		final RevisionState lastState =
-				lastBuild.getAction(RevisionState.class);
-		if (lastState != null
-				&& StringUtils.equals(lastState.getBranch(),
-						expandedManifestBranch)) {
-			return lastState;
+		final List<RevisionState> lastStateList =
+				lastBuild.getActions(RevisionState.class);
+		for (RevisionState lastState : lastStateList) {
+			if (lastState != null
+					&& isRelevantState(lastState, expandedManifestUrl,
+							expandedManifestBranch, expandedManifestFile)) {
+				return lastState;
+			}
 		}
 		return getLastState(lastBuild.getPreviousBuild(),
-				expandedManifestBranch);
+				expandedManifestUrl, expandedManifestBranch, expandedManifestFile);
 	}
 
 	@Override
