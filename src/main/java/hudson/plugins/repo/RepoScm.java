@@ -886,7 +886,6 @@ public class RepoScm extends SCM implements Serializable {
 		final RevisionState currentState =
 				new RevisionState(manifest, manifestRevision, expandedUrl,
                         expandedBranch, expandedFile, listener.getLogger());
-		// TODO: check if already present...
 		build.addAction(currentState);
 
 		final Run previousBuild = build.getPreviousBuild();
@@ -903,6 +902,7 @@ public class RepoScm extends SCM implements Serializable {
 					showAllChanges);
 		}
 
+		// TODO: create a single action displaying all manifests?
 		ManifestAction manifestAction = new ManifestAction(build);
 		int revisionStateCount = build.getActions(RevisionState.class).size();
 		manifestAction.setIndex(revisionStateCount);

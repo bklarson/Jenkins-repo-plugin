@@ -47,6 +47,7 @@ public class ManifestAction implements RunAction2, Serializable, BuildBadgeActio
 	private static final long serialVersionUID = 1;
 
 	private transient Run<?, ?> run;
+	private transient RevisionState revisionState;
 
 	/**
 	 * Allow disambiguation of the action url when multiple {@link RevisionState} actions present.
@@ -70,6 +71,16 @@ public class ManifestAction implements RunAction2, Serializable, BuildBadgeActio
 	 */
 	public void setIndex(final Integer index) {
 		this.index = index == null || index <= 1 ? null : index;
+		try {
+			final int i = index == null ? 0 : index - 1;
+			final List<RevisionState> revisionStates = run.getActions(RevisionState.class);
+			if (revisionStates.size() > i && i >= 0) {
+				revisionState = revisionStates.get(i);
+			}
+		} catch (Exception e) {
+			debug.log(Level.WARNING, "Error getting revision state {0}", e.getMessage());
+			revisionState = null;
+		}
 	}
 
 	/**
@@ -125,16 +136,27 @@ public class ManifestAction implements RunAction2, Serializable, BuildBadgeActio
 	 * Gets a String representation of the static manifest for this repo snapshot.
 	 */
 	public String getManifest() {
-		String result = "";
-		try {
-			final int i = index == null ? 0 : index - 1;
-			final List<RevisionState> revisionStates = run.getActions(RevisionState.class);
-			if (revisionStates.size() > i && i >= 0) {
-				result = revisionStates.get(i).getManifest();
-			}
-		} catch (Exception e) {
-			debug.log(Level.WARNING, "Error getting revision state {0}", e.getMessage());
-		}
-		return result;
+		return revisionState == null ? "" : revisionState.getManifest();
+	}
+
+	/**
+	 * Returns the manifest repository's url for this repo snapshot.
+	 */
+	public String getUrl() {
+		return revisionState == null ? "" : revisionState.getUrl();
+	}
+
+	/**
+	 * Returns the manifest repository's branch name for this repo snapshot.
+	 */
+	public String getBranch() {
+		return revisionState == null ? "" : revisionState.getBranch();
+	}
+
+	/**
+	 * Returns the path to the manifest file for this repo snapshot.
+	 */
+	public String getFile() {
+		return revisionState == null ? "" : revisionState.getFile();
 	}
 }
