@@ -1,10 +1,15 @@
-Future features roadmap (Mostly from Sony Ericson)
+Future features roadmap
+=======================
 
 Roughly in order of priority.  I have no solid plans to work on any of these,
 but if you'd like to make any contributions, this list is a good place to
 start!
 
 Investigate usage of ToolInstaller
+    Automagically fetch repo from a URL, put it in the workspace and
+		put that dir in the PATH for the current build. Such that it is
+		not necessary to install repo manually on all your slaves.
+
 Wipe workspace option? (Follow git plugin here)
 Badge/Tag support
 
@@ -12,3 +17,4 @@ Gerrit-Download integration (Gerrit Trigger plugin support)
 Better auto-retry logic
 
 Support smartsync (-s option)
+

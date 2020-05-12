@@ -7,6 +7,7 @@ a static manifest.
 
 =============
 
-Maintainer
+Maintainers
 
+Bjarke Freund-Hansen - bjarkefh@gmail.com
 Brad Larson - bklarson@gmail.com

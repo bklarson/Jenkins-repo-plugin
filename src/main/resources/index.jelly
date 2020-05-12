@@ -1,3 +1,4 @@
+<?jelly escape-by-default='true'?>
 <div>
   This plugin allows use of <a href="http://code.google.com/p/git-repo/">repo</a> as
   an SCM tool.  A repo binary is required.

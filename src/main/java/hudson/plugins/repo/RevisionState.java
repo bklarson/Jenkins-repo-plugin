@@ -33,11 +33,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.w3c.dom.Document;
@@ -50,7 +50,7 @@ import org.xml.sax.InputSource;
  * It is used to see what changed from build to build.
  */
 @SuppressWarnings("serial")
-public class RevisionState extends SCMRevisionState implements Serializable {
+class RevisionState extends SCMRevisionState implements Serializable {
 
 	private final String manifest;
 	private final Map<String, ProjectState> projects =
@@ -65,13 +65,15 @@ public class RevisionState extends SCMRevisionState implements Serializable {
 	 *
 	 * @param manifest
 	 *            A string representation of the static manifest XML file
+	 * @param manifestRevision
+     *            Git hash of the manifest repo
 	 * @param branch
 	 *            The branch of the manifest project
 	 * @param logger
 	 *            A PrintStream for logging errors
 	 */
-	public RevisionState(final String manifest, final String branch,
-			final PrintStream logger) {
+	RevisionState(final String manifest, final String manifestRevision,
+				  final String branch, @Nullable final PrintStream logger) {
 		this.manifest = manifest;
 		this.branch = branch;
 		try {
@@ -82,7 +84,9 @@ public class RevisionState extends SCMRevisionState implements Serializable {
 							.parse(xmlSource);
 
 			if (!doc.getDocumentElement().getNodeName().equals("manifest")) {
-				logger.println("Error - malformed manifest");
+				if (logger != null) {
+					logger.println("Error - malformed manifest");
+				}
 				return;
 			}
 			final NodeList projectNodes = doc.getElementsByTagName("project");
@@ -104,17 +108,27 @@ public class RevisionState extends SCMRevisionState implements Serializable {
 					path = serverPath;
 				}
 				if (path != null && serverPath != null && revision != null) {
-					projects.put(path, new ProjectState(path, serverPath,
-							revision));
+					projects.put(path, ProjectState.constructCachedInstance(
+							path, serverPath, revision));
 					if (logger != null) {
 						logger.println("Added a project: " + path
 								+ " at revision: " + revision);
 					}
 				}
 			}
+
+            final String manifestP = ".repo/manifests.git";
+            projects.put(manifestP, ProjectState.constructCachedInstance(
+                        manifestP, manifestP, manifestRevision));
+            if (logger != null) {
+                logger.println("Manifest at revision: " + manifestRevision);
+            }
+
+
 		} catch (final Exception e) {
-			logger.println(e);
-			return;
+			if (logger != null) {
+				logger.println(e);
+			}
 		}
 	}
 
@@ -136,7 +150,9 @@ public class RevisionState extends SCMRevisionState implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return branch.hashCode() ^ manifest.hashCode() ^ projects.hashCode();
+		return (branch != null ? branch.hashCode() : 0)
+			^ (manifest != null ? manifest.hashCode() : 0)
+			^ projects.hashCode();
 	}
 
 	/**
@@ -174,7 +190,7 @@ public class RevisionState extends SCMRevisionState implements Serializable {
 	 * @return A List of ProjectStates from the previous repo state which have
 	 *         since been updated.
 	 */
-	public List<ProjectState> whatChanged(final RevisionState previousState) {
+	List<ProjectState> whatChanged(@Nullable final RevisionState previousState) {
 		final List<ProjectState> changes = new ArrayList<ProjectState>();
 		if (previousState == null) {
 			// Everything is new. The change log would include every change,
@@ -183,21 +199,22 @@ public class RevisionState extends SCMRevisionState implements Serializable {
 			debug.log(Level.FINE, "Everything is new");
 			return null;
 		}
-		final Set<String> keys = projects.keySet();
+		//final Set<String> keys = projects.keySet();
 		HashMap<String, ProjectState> previousStateCopy =
 				new HashMap<String, ProjectState>(previousState.projects);
-		for (final String key : keys) {
-			final ProjectState status = previousStateCopy.get(key);
+		for (final Map.Entry<String, ProjectState> entry : projects.entrySet()) {
+			final ProjectState status = previousStateCopy.get(entry.getKey());
 			if (status == null) {
 				// This is a new project, just added to the manifest.
-				final ProjectState newProject = projects.get(key);
-				debug.log(Level.FINE, "New project: " + key);
-				changes.add(new ProjectState(newProject.getPath(), newProject
-						.getServerPath(), null));
-			} else if (!status.equals(projects.get(key))) {
-				changes.add(previousStateCopy.get(key));
+				final ProjectState newProject = entry.getValue();
+				debug.log(Level.FINE, "New project: {0}", entry.getKey());
+				changes.add(ProjectState.constructCachedInstance(
+						newProject.getPath(), newProject.getServerPath(),
+						null));
+			} else if (!status.equals(entry.getValue())) {
+				changes.add(previousStateCopy.get(entry.getKey()));
 			}
-			previousStateCopy.remove(key);
+			previousStateCopy.remove(entry.getKey());
 		}
 		changes.addAll(previousStateCopy.values());
 		return changes;
