@@ -172,8 +172,13 @@ class ChangeLog extends ChangeLogParser {
 			// from Gerrit.  It might be tricky with master/slave setup.
 			commands.add(change.getRevision() + ".." + newRevision);
 			final ByteArrayOutputStream gitOutput = new ByteArrayOutputStream();
-			launcher.launch().stdout(gitOutput).pwd(gitdir).cmds(commands)
-					.join();
+			if (launcher.launch().stdout(gitOutput).pwd(gitdir).cmds(commands)
+					.join() != 0) {
+				commands.remove(commands.size() - 1);
+				commands.add("HEAD");
+				launcher.launch().stdout(gitOutput).pwd(gitdir).cmds(commands)
+						.join();
+			}
             final String o = new String(gitOutput.toByteArray(), Charset.defaultCharset());
 			final String[] changelogs = o.split(
                             "\\[\\[<as7d9m1R_MARK_A>\\]\\]");
