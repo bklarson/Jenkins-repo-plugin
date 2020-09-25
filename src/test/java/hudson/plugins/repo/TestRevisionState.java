@@ -74,12 +74,12 @@ public class TestRevisionState extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 
-		stateOne = new RevisionState(manifestOne,     "a",  "master", null);
-		stateOneCopy = new RevisionState(manifestOne, "a",  "master", null);
-		stateTwo = new RevisionState(manifestTwo,     "a",  "master", null);
-		stateThree = new RevisionState(manifestThree, "a",  "master", null);
+		stateOne = new RevisionState(manifestOne,     "a",  "https://my.gerrit.com/myrepo", "master", "default.xml", null);
+		stateOneCopy = new RevisionState(manifestOne, "a",  "https://my.gerrit.com/myrepo", "master", "default.xml", null);
+		stateTwo = new RevisionState(manifestTwo,     "a",  "https://my.gerrit.com/myrepo", "master", "default.xml", null);
+		stateThree = new RevisionState(manifestThree, "a",  "https://my.gerrit.com/myrepo", "master", "default.xml", null);
 
-		stateMChange = new RevisionState(manifestThree, "b",  "master", null);
+		stateMChange = new RevisionState(manifestThree, "b",  "https://my.gerrit.com/myrepo", "master", "default.xml", null);
 	}
 
 	/**

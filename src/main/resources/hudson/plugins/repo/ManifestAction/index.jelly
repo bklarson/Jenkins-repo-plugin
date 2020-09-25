@@ -16,6 +16,8 @@
 			To recreate this build, copy the below manifest and past it to .repo/manifest.xml, then run 'repo sync'.
 			When done, be sure to undo changes to the .repo/manifest.xml file and repo sync again.
 			<br/><br/>
+			Generated from <tt>${it.file}</tt> in branch <tt>${it.branch}</tt> of <tt>${it.url}</tt>.
+			<br/><br/>
 			Manifest File:<br/><br/>
 			<textarea rows="15" cols="140">${it.manifest}</textarea>
 		</l:main-panel>

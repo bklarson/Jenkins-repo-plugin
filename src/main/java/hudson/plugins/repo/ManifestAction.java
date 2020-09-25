@@ -23,6 +23,8 @@
  */
 package hudson.plugins.repo;
 
+import java.io.Serializable;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,17 +34,26 @@ import hudson.model.BuildBadgeAction;
 import hudson.model.Run;
 import jenkins.model.RunAction2;
 
+import javax.annotation.CheckForNull;
+
 /**
  * A Manifest Action displays the static manifest information needed
  * to recreate the exact state of the repository when the build was run.
  */
 @ExportedBean(defaultVisibility = 999)
-public class ManifestAction implements RunAction2, BuildBadgeAction  {
-
+public class ManifestAction implements RunAction2, Serializable, BuildBadgeAction {
 	private static Logger debug = Logger
 		.getLogger("hudson.plugins.repo.ManifestAction");
+	private static final long serialVersionUID = 1;
 
 	private transient Run<?, ?> run;
+	private transient RevisionState revisionState;
+
+	/**
+	 * Allow disambiguation of the action url when multiple {@link RevisionState} actions present.
+	 */
+	@CheckForNull
+	private Integer index;
 
 	/**
 	 * Constructs the manifest action object.
@@ -50,6 +61,37 @@ public class ManifestAction implements RunAction2, BuildBadgeAction  {
 	 */
 	ManifestAction(final Run<?, ?> run) {
 		this.run = run;
+	}
+
+	/**
+	 * Sets an identifier used to disambiguate multiple {@link RevisionState} actions attached to a
+	 * {@link Run}.
+	 *
+	 * @param index the index, indexes less than or equal to {@code 1} will be discarded.
+	 */
+	public void setIndex(final Integer index) {
+		this.index = index == null || index <= 1 ? null : index;
+		try {
+			final int i = index == null ? 0 : index - 1;
+			final List<RevisionState> revisionStates = run.getActions(RevisionState.class);
+			if (revisionStates.size() > i && i >= 0) {
+				revisionState = revisionStates.get(i);
+			}
+		} catch (Exception e) {
+			debug.log(Level.WARNING, "Error getting revision state {0}", e.getMessage());
+			revisionState = null;
+		}
+	}
+
+	/**
+	 * Gets the identifier used to disambiguate multiple {@link RevisionState} actions attached to
+	 * a {@link Run}.
+	 *
+	 * @return the index.
+	 */
+	@CheckForNull
+	public Integer getIndex() {
+		return index;
 	}
 
 	@Override
@@ -87,22 +129,34 @@ public class ManifestAction implements RunAction2, BuildBadgeAction  {
 	 * Returns the name of the Url to use for the action.
 	 */
 	public final String getUrlName() {
-		return "repo-manifest";
+		return index == null ? "repo-manifest" : "repo-manifest-" + index;
 	}
 
 	/**
 	 * Gets a String representation of the static manifest for this repo snapshot.
 	 */
 	public String getManifest() {
-		String result = "";
-		try {
-			final RevisionState revisionState = run.getAction(RevisionState.class);
-			if (revisionState != null) {
-				result = revisionState.getManifest();
-			}
-		} catch (Exception e) {
-			debug.log(Level.WARNING, "Error getting revision state {0}", e.getMessage());
-		}
-		return result;
+		return revisionState == null ? "" : revisionState.getManifest();
+	}
+
+	/**
+	 * Returns the manifest repository's url for this repo snapshot.
+	 */
+	public String getUrl() {
+		return revisionState == null ? "" : revisionState.getUrl();
+	}
+
+	/**
+	 * Returns the manifest repository's branch name for this repo snapshot.
+	 */
+	public String getBranch() {
+		return revisionState == null ? "" : revisionState.getBranch();
+	}
+
+	/**
+	 * Returns the path to the manifest file for this repo snapshot.
+	 */
+	public String getFile() {
+		return revisionState == null ? "" : revisionState.getFile();
 	}
 }

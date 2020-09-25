@@ -55,7 +55,9 @@ class RevisionState extends SCMRevisionState implements Serializable {
 	private final String manifest;
 	private final Map<String, ProjectState> projects =
 			new TreeMap<String, ProjectState>();
+	private final String url;
 	private final String branch;
+	private final String file;
 
 	private static Logger debug =
 		Logger.getLogger("hudson.plugins.repo.RevisionState");
@@ -67,15 +69,22 @@ class RevisionState extends SCMRevisionState implements Serializable {
 	 *            A string representation of the static manifest XML file
 	 * @param manifestRevision
      *            Git hash of the manifest repo
+	 * @param url
+	 *            The URL of the manifest
 	 * @param branch
 	 *            The branch of the manifest project
+	 * @param file
+	 *            The path to the manifest file
 	 * @param logger
 	 *            A PrintStream for logging errors
 	 */
 	RevisionState(final String manifest, final String manifestRevision,
-				  final String branch, @Nullable final PrintStream logger) {
+				  final String url, final String branch, final String file,
+				  @Nullable final PrintStream logger) {
 		this.manifest = manifest;
+		this.url = url;
 		this.branch = branch;
+		this.file = file;
 		try {
 			final InputSource xmlSource = new InputSource();
 			xmlSource.setCharacterStream(new StringReader(manifest));
@@ -151,8 +160,18 @@ class RevisionState extends SCMRevisionState implements Serializable {
 	@Override
 	public int hashCode() {
 		return (branch != null ? branch.hashCode() : 0)
+			^ (url != null ? url.hashCode() : 0)
+			^ (file != null ? file.hashCode() : 0)
 			^ (manifest != null ? manifest.hashCode() : 0)
 			^ projects.hashCode();
+	}
+
+	/**
+	 * Returns the manifest repository's url when this state was
+	 * created.
+	 */
+	public String getUrl() {
+		return url;
 	}
 
 	/**
@@ -161,6 +180,13 @@ class RevisionState extends SCMRevisionState implements Serializable {
 	 */
 	public String getBranch() {
 		return branch;
+	}
+
+	/**
+	 * Returns the path to the manifest file used when this state was created.
+	 */
+	public String getFile() {
+		return file;
 	}
 
 	/**
