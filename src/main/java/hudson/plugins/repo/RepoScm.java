@@ -111,6 +111,7 @@ public class RepoScm extends SCM implements Serializable {
 	@CheckForNull private Set<String> ignoreProjects;
 	@CheckForNull private EnvVars extraEnvVars;
 	@CheckForNull private boolean noCloneBundle;
+	@CheckForNull private boolean worktree;
 
 	/**
 	 * Returns the manifest repository URL.
@@ -335,6 +336,13 @@ public class RepoScm extends SCM implements Serializable {
 	public boolean isNoCloneBundle() {
 		return noCloneBundle;
 	}
+	/**
+	 * Returns the value of isWorktree.
+	 */
+	@Exported
+	public boolean isWorktree() {
+		return worktree;
+	}
 
 	/**
 	 * Returns the value of manifestSubmodules.
@@ -428,6 +436,7 @@ public class RepoScm extends SCM implements Serializable {
 		setShowAllChanges(showAllChanges);
 		setRepoUrl(repoUrl);
 		ignoreProjects = Collections.<String>emptySet();
+		setWorktree(false);
 	}
 
 	/**
@@ -461,6 +470,7 @@ public class RepoScm extends SCM implements Serializable {
 		fetchSubmodules = false;
 		ignoreProjects = Collections.<String>emptySet();
 		noCloneBundle = false;
+		worktree = false;
 	}
 
 	/**
@@ -659,6 +669,18 @@ public class RepoScm extends SCM implements Serializable {
 	@DataBoundSetter
 	public void setNoCloneBundle(final boolean noCloneBundle) {
 		this.noCloneBundle = noCloneBundle;
+	}
+
+	/**
+	 * Set worktree.
+	 *
+	 * @param worktree
+	 *        If this value is true, add the "--worktree" option when
+	 *        running the "repo init" command.
+     */
+	@DataBoundSetter
+	public void setWorktree(final boolean worktree) {
+		this.worktree = worktree;
 	}
 
 	/**
@@ -1019,6 +1041,9 @@ public class RepoScm extends SCM implements Serializable {
 		}
 		if (isNoCloneBundle()) {
 			commands.add("--no-clone-bundle");
+		}
+		if (isWorktree()) {
+			commands.add("--worktree");
 		}
 		if (currentBranch) {
 			commands.add("--current-branch");

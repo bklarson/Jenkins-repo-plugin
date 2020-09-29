@@ -104,5 +104,9 @@
 			<f:checkbox/>
 		</f:entry>
 
+		<f:entry title="Worktree" help="/plugin/repo/help-worktree.html" field="worktree">
+			<f:checkbox/>
+		</f:entry>
+
 	</f:advanced>
 </j:jelly>

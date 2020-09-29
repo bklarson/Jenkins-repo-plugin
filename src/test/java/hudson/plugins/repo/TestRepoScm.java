@@ -64,4 +64,11 @@ public class TestRepoScm extends TestCase {
 		scm.setCleanFirst(true);
 		assertEquals(true, scm.isCleanFirst());
 	}
+
+	public void testWorktree() {
+		RepoScm scm = new RepoScm("http://manifesturl");
+		assertEquals(false, scm.isWorktree());
+		scm.setWorktree(true);
+		assertEquals(true, scm.isWorktree());
+	}
 }
