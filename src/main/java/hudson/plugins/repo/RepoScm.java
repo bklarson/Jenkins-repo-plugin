@@ -940,6 +940,9 @@ public class RepoScm extends SCM implements Serializable {
 		if (resetFirst) {
 			commands.add(getDescriptor().getExecutable());
 			commands.add("forall");
+			if (jobs > 0) {
+				commands.add("--jobs=" + jobs);
+			}
 			commands.add("-c");
 			commands.add("git reset --hard");
 			int resetCode = launcher.launch().stdout(logger)
@@ -953,6 +956,9 @@ public class RepoScm extends SCM implements Serializable {
 		if (cleanFirst) {
 			commands.add(getDescriptor().getExecutable());
 			commands.add("forall");
+			if (jobs > 0) {
+				commands.add("--jobs=" + jobs);
+			}
 			commands.add("-c");
 			commands.add("git clean -fdx");
 			int cleanCode = launcher.launch().stdout(logger)
