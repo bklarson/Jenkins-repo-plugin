@@ -4,7 +4,7 @@ image:https://img.shields.io/jenkins/plugin/v/repo.svg[link="https://plugins.jen
 image:https://img.shields.io/github/release/jenkinsci/repo-plugin.svg?label=changelog[link="https://github.com/jenkinsci/repo-plugin/releases/latest"]
 image:https://img.shields.io/jenkins/plugin/i/repo.svg?color=blue[link="https://plugins.jenkins.io/repo"]
 
-This plugin adds http://code.google.com/p/git-repo/[Repo] as an SCM provider in Jenkins.
+This plugin adds https://gerrit.googlesource.com/git-repo[Repo] as an SCM provider in Jenkins.
 
 *This plugin is up for adoption.* Want to help improve this plugin?
 https://wiki.jenkins.io/display/JENKINS/Adopt+a+Plugin[Click here to
@@ -17,7 +17,7 @@ learn more]!
 [[RepoPlugin-Description]]
 == Description
 
-This plugin adds Repo (http://code.google.com/p/git-repo/) as an SCM
+This plugin adds Repo (https://gerrit.googlesource.com/git-repo) as an SCM
 provider for Jenkins. Projects can use this plugin to only run builds
 when changes are detected in any of the git repositories in the repo
 manifest, to list the changes between builds, and to re-create the
