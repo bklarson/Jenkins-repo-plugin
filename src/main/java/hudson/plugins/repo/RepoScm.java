@@ -1129,6 +1129,9 @@ public class RepoScm extends SCM implements Serializable {
 				expandedManifestBranch, expandedManifestFile);
 
 		if (state != SCMRevisionState.NONE) {
+			env.put("REPO_MANIFEST_URL", ((RevisionState) state).getUrl());
+			env.put("REPO_MANIFEST_BRANCH", ((RevisionState) state).getBranch());
+			env.put("REPO_MANIFEST_FILE", ((RevisionState) state).getFile());
 			env.put("REPO_MANIFEST_XML", ((RevisionState) state).getManifest());
 		}
 	}
