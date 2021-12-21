@@ -1,3 +1,4 @@
+[[Repo-plugin]]
 = Repo Plugin
 
 image:https://img.shields.io/jenkins/plugin/v/repo.svg[link="https://plugins.jenkins.io/repo"]
@@ -10,8 +11,7 @@ This plugin adds https://gerrit.googlesource.com/git-repo[Repo] as an SCM provid
 https://wiki.jenkins.io/display/JENKINS/Adopt+a+Plugin[Click here to
 learn more]!
 
-:toc:
-:toc-placement: preamble
+:toc: preamble
 :toclevels: 3
 
 [[RepoPlugin-Description]]
@@ -23,6 +23,23 @@ when changes are detected in any of the git repositories in the repo
 manifest, to list the changes between builds, and to re-create the
 project state across all repositories for any previous build using a
 static manifest.
+
+[[RepoPlugin-Pipelines]]
+== Pipelines
+
+The repo plugin provides an SCM implementation to be used with the Pipeline SCM link:https://www.jenkins.io/doc/pipeline/steps/workflow-scm-step/[`checkout` step].
+
+The link:https://www.jenkins.io/redirect/pipeline-snippet-generator[Pipeline Syntax Snippet Generator] guides the user to select checkout options.
+
+[[RepoPlugin-EnvironmentVariables]]
+=== Environment Variables
+
+The repo plugin assigns values to environment variables in Pipeline projects.
+
+REPO_MANIFEST_URL:: URL of manifest repository used.
+REPO_MANIFEST_BRANCH:: Branch of the manifest repository used.
+REPO_MANIFEST_FILE:: Manifest filename used.
+REPO_MANIFEST_XML:: Static manifest (in XML format).
 
 [[RepoPlugin-Changelog]]
 == Changelog
