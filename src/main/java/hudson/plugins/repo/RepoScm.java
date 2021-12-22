@@ -1111,6 +1111,31 @@ public class RepoScm extends SCM implements Serializable {
 		return true;
 	}
 
+	/**
+	 * Adds environmental variables for the builds to the given map.
+	 */
+	@Override
+	public void buildEnvironment(
+			@Nonnull final Run<?, ?> build,
+			@Nonnull final java.util.Map<String, String> env) {
+		final Job<?, ?> job = build.getParent();
+		final EnvVars jobEnv = getEnvVars(null, job);
+
+		final String expandedManifestUrl = jobEnv.expand(manifestRepositoryUrl);
+		final String expandedManifestBranch = jobEnv.expand(manifestBranch);
+		final String expandedManifestFile = jobEnv.expand(manifestFile);
+
+		SCMRevisionState state = getState(build, expandedManifestUrl,
+				expandedManifestBranch, expandedManifestFile);
+
+		if (state != SCMRevisionState.NONE) {
+			env.put("REPO_MANIFEST_URL", ((RevisionState) state).getUrl());
+			env.put("REPO_MANIFEST_BRANCH", ((RevisionState) state).getBranch());
+			env.put("REPO_MANIFEST_FILE", ((RevisionState) state).getFile());
+			env.put("REPO_MANIFEST_XML", ((RevisionState) state).getManifest());
+		}
+	}
+
 	private String getStaticManifest(final Launcher launcher,
 			final FilePath workspace, final OutputStream logger,
 			final EnvVars env)
@@ -1156,23 +1181,46 @@ public class RepoScm extends SCM implements Serializable {
     }
 
 	@Nonnull
-	private SCMRevisionState getLastState(final Run<?, ?> lastBuild,
-			final String expandedManifestUrl, final String expandedManifestBranch,
+	private SCMRevisionState getState(final Run<?, ?> build,
+			final String expandedManifestUrl,
+			final String expandedManifestBranch,
 			final String expandedManifestFile) {
-		if (lastBuild == null) {
-			return RevisionState.NONE;
+		if (build == null) {
+			return SCMRevisionState.NONE;
 		}
-		final List<RevisionState> lastStateList =
-				lastBuild.getActions(RevisionState.class);
-		for (RevisionState lastState : lastStateList) {
-			if (lastState != null
-					&& isRelevantState(lastState, expandedManifestUrl,
+
+		final List<RevisionState> stateList =
+				build.getActions(RevisionState.class);
+		for (RevisionState state : stateList) {
+			if (state != null
+					&& isRelevantState(state, expandedManifestUrl,
 							expandedManifestBranch, expandedManifestFile)) {
-				return lastState;
+				return state;
 			}
 		}
-		return getLastState(lastBuild.getPreviousBuild(),
-				expandedManifestUrl, expandedManifestBranch, expandedManifestFile);
+
+		return SCMRevisionState.NONE;
+	}
+
+	@Nonnull
+	private SCMRevisionState getLastState(final Run<?, ?> lastBuild,
+			final String expandedManifestUrl,
+			final String expandedManifestBranch,
+			final String expandedManifestFile) {
+		if (lastBuild == null) {
+			return SCMRevisionState.NONE;
+		}
+
+		SCMRevisionState lastState = getState(lastBuild, expandedManifestUrl,
+				expandedManifestBranch, expandedManifestFile);
+
+		if (lastState == SCMRevisionState.NONE) {
+			lastState = getLastState(lastBuild.getPreviousBuild(),
+					expandedManifestUrl, expandedManifestBranch,
+					expandedManifestFile);
+		}
+
+		return lastState;
 	}
 
 	@Override
