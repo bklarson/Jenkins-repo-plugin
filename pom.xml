@@ -3,22 +3,22 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>4.31</version>
+    <version>4.41</version>
     <relativePath />
   </parent>
 
   <groupId>org.jenkins-ci.plugins</groupId>
   <artifactId>repo</artifactId>
-  <version>1.15.1-SNAPSHOT</version>
+  <version>${revision}${changelist}</version>
   <packaging>hpi</packaging>
   <name>Jenkins REPO plugin</name>
   <description>Integrates Jenkins with REPO SCM</description>
   <url>https://github.com/jenkinsci/repo-plugin/blob/master/README.adoc</url>
 
   <properties>
-    <revision>1.14.1</revision>
+    <revision>1.15.1</revision>
     <changelist>-SNAPSHOT</changelist>
-    <jenkins.version>2.277.1</jenkins.version>
+    <jenkins.version>2.346.1</jenkins.version>
     <java.level>8</java.level>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
