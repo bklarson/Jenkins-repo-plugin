@@ -74,7 +74,7 @@ public class ManifestAction implements RunAction2, Serializable, BuildBadgeActio
 	 * Returns the filename to use as the badge.
 	 */
 	public String getIconFileName() {
-		return "star.gif";
+		return "star";
 	}
 
 	/**

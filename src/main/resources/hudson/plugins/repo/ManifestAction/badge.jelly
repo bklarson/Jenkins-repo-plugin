@@ -1,8 +1,11 @@
 <?jelly escape-by-default='true'?>
+<j:jelly
+    xmlns:j="jelly:core"
+    xmlns:l="/lib/layout">
 
-<a href="${rootURL}/${it.run.url}${it.urlName}">
-    <img width="16" height="16"
-        tooltip="${it.displayName}"
-        alt="[manifest]"
-        src="${imagesURL}/16x16/${it.iconFileName}"/>
-</a>
+    <a href="${rootURL}/${it.run.url}${it.urlName}">
+        <l:icon class="icon-${it.iconFileName} icon-sm"
+            tooltip="${it.displayName}"
+            alt="[manifest]"/>
+    </a>
+</j:jelly>
