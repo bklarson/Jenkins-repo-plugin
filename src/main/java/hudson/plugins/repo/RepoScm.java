@@ -85,6 +85,11 @@ import javax.annotation.Nullable;
 @ExportedBean
 public class RepoScm extends SCM implements Serializable {
 
+	/**
+	 * maximum length of string passed to a single environment variable.
+	 */
+	private static final int MAX_ARG_STRLEN = 131072;
+
 	private static Logger debug = Logger
 			.getLogger("hudson.plugins.repo.RepoScm");
 
@@ -1191,7 +1196,11 @@ public class RepoScm extends SCM implements Serializable {
 			env.put("REPO_MANIFEST_URL", ((RevisionState) state).getUrl());
 			env.put("REPO_MANIFEST_BRANCH", ((RevisionState) state).getBranch());
 			env.put("REPO_MANIFEST_FILE", ((RevisionState) state).getFile());
-			env.put("REPO_MANIFEST_XML", ((RevisionState) state).getManifest());
+			String manifest = ((RevisionState) state).getManifest();
+			if (manifest.length() > MAX_ARG_STRLEN) {
+				manifest = "_";
+			}
+			env.put("REPO_MANIFEST_XML", manifest);
 		}
 	}
 
