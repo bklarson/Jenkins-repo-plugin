@@ -38,12 +38,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
-import javax.xml.parsers.DocumentBuilderFactory;
 
+import jenkins.util.xml.XMLUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 /**
  * A RevisionState records the state of the repository for a particular build.
@@ -86,12 +85,7 @@ class RevisionState extends SCMRevisionState implements Serializable {
 		this.branch = branch;
 		this.file = file;
 		try {
-			final InputSource xmlSource = new InputSource();
-			xmlSource.setCharacterStream(new StringReader(manifest));
-			final Document doc =
-					DocumentBuilderFactory.newInstance().newDocumentBuilder()
-							.parse(xmlSource);
-
+			final Document doc = XMLUtils.parse(new StringReader(manifest));
 			if (!doc.getDocumentElement().getNodeName().equals("manifest")) {
 				if (logger != null) {
 					logger.println("Error - malformed manifest");
