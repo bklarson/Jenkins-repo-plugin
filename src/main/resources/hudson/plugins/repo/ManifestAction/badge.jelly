@@ -1,0 +1,11 @@
+<?jelly escape-by-default='true'?>
+<j:jelly
+    xmlns:j="jelly:core"
+    xmlns:l="/lib/layout">
+
+    <a href="${rootURL}/${it.run.url}${it.urlName}">
+        <l:icon class="icon-${it.iconFileName} icon-sm"
+            tooltip="${it.displayName}"
+            alt="[manifest]"/>
+    </a>
+</j:jelly>

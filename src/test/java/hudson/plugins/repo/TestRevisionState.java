@@ -40,6 +40,8 @@ public class TestRevisionState extends TestCase {
 	private RevisionState stateOneCopy;
 	private RevisionState stateTwo;
 	private RevisionState stateThree;
+	private RevisionState stateMChange;
+
 
 	private String manifestOne =
 			"<manifest>"
@@ -72,10 +74,12 @@ public class TestRevisionState extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 
-		stateOne = new RevisionState(manifestOne, "master", null);
-		stateOneCopy = new RevisionState(manifestOne, "master", null);
-		stateTwo = new RevisionState(manifestTwo, "master", null);
-		stateThree = new RevisionState(manifestThree, "master", null);
+		stateOne = new RevisionState(manifestOne,     "a",  "https://my.gerrit.com/myrepo", "master", "default.xml", null);
+		stateOneCopy = new RevisionState(manifestOne, "a",  "https://my.gerrit.com/myrepo", "master", "default.xml", null);
+		stateTwo = new RevisionState(manifestTwo,     "a",  "https://my.gerrit.com/myrepo", "master", "default.xml", null);
+		stateThree = new RevisionState(manifestThree, "a",  "https://my.gerrit.com/myrepo", "master", "default.xml", null);
+
+		stateMChange = new RevisionState(manifestThree, "b",  "https://my.gerrit.com/myrepo", "master", "default.xml", null);
 	}
 
 	/**
@@ -85,6 +89,7 @@ public class TestRevisionState extends TestCase {
 		Assert.assertTrue(stateOne.equals(stateOneCopy));
 		Assert.assertFalse(stateOne.equals(stateTwo));
 		Assert.assertFalse(stateTwo.equals(stateThree));
+		Assert.assertFalse(stateThree.equals(stateMChange));
 	}
 
 	/**
@@ -95,15 +100,15 @@ public class TestRevisionState extends TestCase {
 
 		List<ProjectState> changes = stateTwo.whatChanged(stateOne);
 		List<ProjectState> expectedChanges = new ArrayList<ProjectState>();
-		expectedChanges.add(new ProjectState("a", "a", "c9039e9649d133d80073e432816b9b4915776b41"));
-		expectedChanges.add(new ProjectState("c", "c", "fa822eff984195ec8923718cd025fd44b77a26ef"));
-		expectedChanges.add(new ProjectState("d", "d", null));
+		expectedChanges.add(ProjectState.constructCachedInstance("a", "a", "c9039e9649d133d80073e432816b9b4915776b41"));
+		expectedChanges.add(ProjectState.constructCachedInstance("c", "c", "fa822eff984195ec8923718cd025fd44b77a26ef"));
+		expectedChanges.add(ProjectState.constructCachedInstance("d", "d", null));
 		Assert.assertEquals(expectedChanges, changes);
 		
 		changes = stateThree.whatChanged(stateTwo);
 		expectedChanges.clear();
-		expectedChanges.add(new ProjectState("b", "b", "c27d6b02c859b291878db67f256cefac3adb26df"));
-		expectedChanges.add(new ProjectState("c", "c", "7086d7305fa6c7c1930de1e7d96fffc9c819b479"));
+		expectedChanges.add(ProjectState.constructCachedInstance("b", "b", "c27d6b02c859b291878db67f256cefac3adb26df"));
+		expectedChanges.add(ProjectState.constructCachedInstance("c", "c", "7086d7305fa6c7c1930de1e7d96fffc9c819b479"));
 		Assert.assertEquals(expectedChanges, changes);
 	}
 }

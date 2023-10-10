@@ -1,0 +1,210 @@
+[[Repo-plugin]]
+= Repo Plugin
+
+image:https://img.shields.io/jenkins/plugin/v/repo.svg[link="https://plugins.jenkins.io/repo"]
+image:https://img.shields.io/github/release/jenkinsci/repo-plugin.svg?label=changelog[link="https://github.com/jenkinsci/repo-plugin/releases/latest"]
+image:https://img.shields.io/jenkins/plugin/i/repo.svg?color=blue[link="https://plugins.jenkins.io/repo"]
+
+This plugin adds https://gerrit.googlesource.com/git-repo[Repo] as an SCM provider in Jenkins.
+
+*This plugin is up for adoption.* Want to help improve this plugin?
+https://wiki.jenkins.io/display/JENKINS/Adopt+a+Plugin[Click here to
+learn more]!
+
+:toc: preamble
+:toclevels: 3
+
+[[RepoPlugin-Description]]
+== Description
+
+This plugin adds Repo (https://gerrit.googlesource.com/git-repo) as an SCM
+provider for Jenkins. Projects can use this plugin to only run builds
+when changes are detected in any of the git repositories in the repo
+manifest, to list the changes between builds, and to re-create the
+project state across all repositories for any previous build using a
+static manifest.
+
+[[RepoPlugin-Pipelines]]
+== Pipelines
+
+The repo plugin provides an SCM implementation to be used with the Pipeline SCM link:https://www.jenkins.io/doc/pipeline/steps/workflow-scm-step/[`checkout` step].
+
+The link:https://www.jenkins.io/redirect/pipeline-snippet-generator[Pipeline Syntax Snippet Generator] guides the user to select checkout options.
+
+[[RepoPlugin-EnvironmentVariables]]
+=== Environment Variables
+
+The repo plugin assigns values to environment variables in Pipeline projects.
+
+REPO_MANIFEST_URL:: URL of manifest repository used.
+REPO_MANIFEST_BRANCH:: Branch of the manifest repository used.
+REPO_MANIFEST_FILE:: Manifest filename used.
+REPO_MANIFEST_XML:: Static manifest (in XML format).
+
+[[RepoPlugin-Changelog]]
+== Changelog
+
+As of version 1.11.0 the changelog is moved to https://github.com/jenkinsci/repo-plugin/releases/[GitHub Releases]
+
+[[RepoPlugin-Version1.10.7-Mar3,2017]]
+=== Version 1.10.7 - Mar 3, 2017
+
+* Update URLs to valid locations in help html.
+(https://github.com/jenkinsci/repo-plugin/pull/43[pull #43])
+* Support for evaluating $\{param} in destination dir.
+(https://github.com/jenkinsci/repo-plugin/pull/44[pull #44])
+* Fix --force-sync help description.
+(https://github.com/jenkinsci/repo-plugin/pull/45[pull #45])
+
+[[RepoPlugin-Version1.10.6-Jan10,2017]]
+=== Version 1.10.6 - Jan 10, 2017
+
+* Use local_manifests/local.xml rather than local_manifest.xml.
+(https://github.com/jenkinsci/repo-plugin/pull/42[pull #42])
+
+[[RepoPlugin-Version1.10.5-Nov30,2016]]
+=== Version 1.10.5 - Nov 30, 2016
+
+* https://issues.jenkins-ci.org/browse/JENKINS-40114[JENKINS-40114]
+Fixed. (https://github.com/jenkinsci/repo-plugin/pull/41[pull #41])
+
+[[RepoPlugin-Version1.10.4-Nov29,2016]]
+=== Version 1.10.4 - Nov 29, 2016
+
+* Fixex typos in local manifest help.
+(https://github.com/jenkinsci/repo-plugin/pull/37[pull #37])
+* https://issues.jenkins-ci.org/browse/JENKINS-36703[JENKINS-36703]
+Fixed polling behaviour.
+(https://github.com/jenkinsci/repo-plugin/pull/38[pull #38])
+* Fixed some repo commands.
+(https://github.com/jenkinsci/repo-plugin/pull/39[pull #39])
+
+[[RepoPlugin-Version1.10.3-Aug18,2016]]
+=== Version 1.10.3 - Aug 18, 2016
+
+* https://issues.jenkins-ci.org/browse/JENKINS-37416[JENKINS-37416]
+Expand local manifest.
+(https://github.com/jenkinsci/repo-plugin/pull/36[pull #36])
+
+[[RepoPlugin-Version1.10.2-Jul13,2016]]
+=== Version 1.10.2 - Jul 13, 2016
+
+* https://issues.jenkins-ci.org/browse/JENKINS-36644[JENKINS-36644] Fix
+Tag action is not working in pipeline job.
+(https://github.com/jenkinsci/repo-plugin/pull/35[pull #35])
+* https://issues.jenkins-ci.org/browse/JENKINS-33958[JENKINS-33958] Fix
+changelog hang when used with pipeline.
+(https://github.com/jenkinsci/repo-plugin/pull/34[pull #34])
+
+[[RepoPlugin-Version1.10.1-Jul11,2016]]
+=== Version 1.10.1 - Jul 11, 2016
+
+* https://issues.jenkins-ci.org/browse/JENKINS-14539[JENKINS-14539] Fix
+issue with Email Ext plugin - full name was returned instead of email.
+(https://github.com/jenkinsci/repo-plugin/pull/33[pull #33])
+
+[[RepoPlugin-Version1.10.0-Feb22,2015]]
+=== Version 1.10.0 - Feb 22, 2015
+
+* Adding an option to ignore specific projects on scm poll.
+(https://github.com/jenkinsci/repo-plugin/pull/31[pull #31])
+
+[[RepoPlugin-Version1.9.0-Jan21,2015]]
+=== Version 1.9.0 - Jan 21, 2015
+
+* Support for
+https://wiki.jenkins.io/display/JENKINS/Pipeline+Plugin[Pipeline Plugin]
+(https://github.com/jenkinsci/repo-plugin/pull/28[pull #28])
+
+[[RepoPlugin-Version1.8.0-Sept25th,2015]]
+=== Version 1.8.0 - Sept 25th, 2015
+
+* --force-sync (https://github.com/jenkinsci/repo-plugin/pull/26[pull
+#26])
+* --no-tags (https://github.com/jenkinsci/repo-plugin/pull/27[pull #27])
+
+[[RepoPlugin-Version1.7.1-May6th,2015]]
+=== Version 1.7.1 - May 6th, 2015
+
+* Fix some options can't be shown properly in configuration page
+(https://github.com/jenkinsci/repo-plugin/pull/25[pull #25])
+
+[[RepoPlugin-Version1.7-Apr23rd,2015]]
+=== Version 1.7 - Apr 23rd, 2015
+
+* Support for shallow clones, option to reset the repo before syncing
+(https://github.com/jenkinsci/repo-plugin/pull/20[pull #20])
+* Fixed
+https://issues.jenkins-ci.org/browse/JENKINS-17913[JENKINS-17913] Expand
+manifest file and URL.
+(https://github.com/jenkinsci/repo-plugin/pull/21[pull #21])
+* Added --trace option.
+(https://github.com/jenkinsci/repo-plugin/pull/22[pull #22])
+* Fixed
+https://issues.jenkins-ci.org/browse/JENKINS-23262[JENKINS-23262]
+(https://github.com/jenkinsci/repo-plugin/pull/22[pull #22])
+* Added option for --first-parent in changelog.
+(https://github.com/jenkinsci/repo-plugin/pull/23[pull #23])
+
+[[RepoPlugin-Version1.6-Nov19th,2013]]
+=== Version 1.6 - Nov 19th, 2013
+
+* Allow parameters in repo branch name
+(https://issues.jenkins-ci.org/browse/JENKINS-17913[issue #20])
+* Fixed a bug where a poll compared the current workspace and polled
+branch incorrectly.
+* Improved git log
+
+[[RepoPlugin-Version1.5-April23th,2013]]
+=== Version 1.5 - April 23th, 2013
+
+* Support for repo init -g
+* Support for repo init --repo-url
+* Parent pom updated to jenkins 1.424
+
+[[RepoPlugin-Version1.3-November19th,2012]]
+=== Version 1.3 - November 19th, 2012
+
+* Lowered memory footprint in case of projects with a large build
+history.
+* Support repo options '-c' and '-q'.
+* Fix: Repo does not implement
+getAffectedFiles() (https://issues.jenkins-ci.org/browse/JENKINS-14926[issue
+#14926]).
+* Allow localManifest to be specified either literally or as an URL.
+
+[[RepoPlugin-Version1.2.1-April23rd,2012]]
+=== Version 1.2.1 - April 23rd, 2012
+
+* Fix : Jobs using repo plugin do not persist
+(https://issues.jenkins-ci.org/browse/JENKINS-12466[JENKINS-12466])
+* Fix : Fixed NPE in RevisionState.hashCode()
+
+[[RepoPlugin-Version1.2]]
+=== Version 1.2
+
+If build scripts modify the workspace, which cause problems during repo
+sync, try running git reset --hard on the repository and re-running repo
+sync. Thanks to https://github.com/tgover1[tgover].
+
+Don't show all the changes brought in from a merge commit in the change
+log, just show the merge commit (see git log --first-parent). This fixes
+a problem of a merge commit breaking the build and all authors of
+changes brought in with that merge commit getting emailed about it.
+Thanks to https://github.com/tgover1[tgover].
+
+[[RepoPlugin-Version1.1]]
+=== Version 1.1
+
+Add support for syncing from local mirrors, specify the number of
+projects to sync simultaneously, use a local manifest, and sync to a
+subdirectory of the workspace. Thanks to
+https://github.com/tgover1[tgover].
+
+Add support to specify the name of the manifest file to use. Thanks to
+https://github.com/farshidce[farshidce].
+
+[[RepoPlugin-Version1.0]]
+=== Version 1.0
+
+Initial Release

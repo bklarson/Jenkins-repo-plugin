@@ -43,31 +43,22 @@ public class ChangeLogEntry extends ChangeLogSet.Entry {
 	 * contains a list of ModifiedFiles. We track the file path and how it was
 	 * modified (added, edited, removed, etc).
 	 */
-	public static class ModifiedFile implements AffectedFile {
-
-		/**
-		 * An EditType for a Renamed file. Most version control systems don't
-		 * support file renames, so this EditType isn't in the default set
-		 * provided by Hudson.
-		 */
-		public static final EditType RENAME = new EditType("rename",
-				"The file was renamed");
+	static class ModifiedFile implements AffectedFile {
 
 		private final String path;
-		private final char action;
+		private final EditType editType;
 
 		/**
-		 * Create a new ModifiedFile object with the given path and action.
+		 * Create a new ModifiedFile object with the given path and edit type.
 		 *
 		 * @param path
 		 *            the path of the file
-		 * @param action
-		 *            the action performed on the file, as reported by Git (A
-		 *            for add, D for delete, M for modified, etc)
+		 * @param editType
+		 *            edit type
 		 */
-		public ModifiedFile(final String path, final char action) {
+		ModifiedFile(final String path, final EditType editType) {
 			this.path = path;
-			this.action = action;
+			this.editType = editType;
 		}
 
 		/**
@@ -78,28 +69,10 @@ public class ChangeLogEntry extends ChangeLogSet.Entry {
 		}
 
 		/**
-		 * Returns the action performed on the file.
-		 */
-		public char getAction() {
-			return action;
-		}
-
-		/**
-		 * Returns the EditType performed on the file (based on the action).
+		 * Returns the EditType performed on the file.
 		 */
 		public EditType getEditType() {
-			if (action == 'A') {
-				return EditType.ADD;
-			} else if (action == 'D') {
-				return EditType.DELETE;
-			} else if (action == 'M') {
-				return EditType.EDIT;
-			} else if (action == 'R') {
-				return RENAME;
-			} else {
-				return new EditType("unknown: " + action,
-						"An unknown file action");
-			}
+			return editType;
 		}
 	}
 
@@ -260,6 +233,15 @@ public class ChangeLogEntry extends ChangeLogSet.Entry {
 		return modifiedFiles;
 	}
 
+	/**
+	 * Returns a set of paths in the workspace that was
+	 * affected by this change.
+	 */
+	@Override
+	public List<ModifiedFile> getAffectedFiles() {
+		return modifiedFiles;
+	}
+
 	@Override
 	public String getMsg() {
 		return getCommitText();
@@ -270,7 +252,7 @@ public class ChangeLogEntry extends ChangeLogSet.Entry {
 		if (authorName == null) {
 			return User.getUnknown();
 		}
-		return User.get(authorName);
+		return User.get(authorEmail);
 	}
 
 	@Override
@@ -285,6 +267,9 @@ public class ChangeLogEntry extends ChangeLogSet.Entry {
 
 	@Override
 	public Collection<String> getAffectedPaths() {
+        if (modifiedFiles == null) {
+            return null;
+        }
 		return new AbstractList<String>() {
 			@Override
 			public String get(final int index) {

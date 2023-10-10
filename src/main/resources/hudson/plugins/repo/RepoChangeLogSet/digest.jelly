@@ -1,3 +1,4 @@
+<?jelly escape-by-default='true'?>
 <j:jelly
 	xmlns:j="jelly:core"
 	xmlns:st="jelly:stapler"
@@ -16,9 +17,16 @@
 		<ul>
 			<j:forEach var="cs" items="${it.items}" varStatus="loop">
 				<li>
-					${cs.msgAnnotated} <br/>
-					-- <a href="${rootURL}/${cs.author.url}/">${cs.author}</a> /
-					<a href="changes#detail${loop.index}">detail</a> <br/>
+					<j:out value="${cs.msgAnnotated}"/> —
+					<j:choose>
+						<j:when test="${cs.authorName != null}">
+							<a href="${rootURL}/${cs.author.url}/">${cs.author}</a>
+						</j:when>
+						<j:otherwise>
+							${cs.path}
+						</j:otherwise>
+					</j:choose>
+					/ <a href="changes#detail${loop.index}">detail</a> <br/>
 				</li>
 			</j:forEach>
 		</ul>

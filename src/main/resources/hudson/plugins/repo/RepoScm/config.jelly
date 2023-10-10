@@ -1,3 +1,4 @@
+<?jelly escape-by-default='true'?>
 <j:jelly
 	xmlns:j="jelly:core"
 	xmlns:st="jelly:stapler"
@@ -6,34 +7,106 @@
 	xmlns:t="/lib/hudson"
 	xmlns:f="/lib/form">
 
-	<f:entry title="Manifest Repository Url" help="/plugin/repo/help-manifestRepositoryUrl.html">
-		<f:textbox name="repo.manifestRepositoryUrl" value="${scm.manifestRepositoryUrl}"/>
+	<f:entry title="Manifest Repository Url" field="manifestRepositoryUrl">
+		<f:textbox/>
 	</f:entry>
 
 	<f:advanced>
 
-		<f:entry title="Manifest Branch" help="/plugin/repo/help-manifestBranch.html">
-			<f:textbox name="repo.manifestBranch" value="${scm.manifestBranch}"/>
+		<f:entry title="Manifest Branch" field="manifestBranch">
+			<f:textbox/>
 		</f:entry>
 
-		<f:entry title="Manifest File" help="/plugin/repo/help-manifestFile.html">
-			<f:textbox name="repo.manifestFile" value="${scm.manifestFile}"/>
+		<f:entry title="Manifest File" field="manifestFile">
+			<f:textbox/>
 		</f:entry>
 
-		<f:entry title="Destination Directory" help="/plugin/repo/help-destinationDir.html">
-			<f:textbox name="repo.destinationDir" value="${scm.destinationDir}"/>
+		<f:entry title="Group" field="manifestGroup">
+			<f:textbox/>
 		</f:entry>
 
-		<f:entry title="Mirror Directory" help="/plugin/repo/help-mirrorDir.html">
-			<f:textbox name="repo.mirrorDir" value="${scm.mirrorDir}"/>
+		<f:entry title="Platform" field="manifestPlatform">
+			<f:textbox/>
+		</f:entry>
+		
+		<f:entry title="IgnoreChanges" field="ignoreProjects">
+			<f:textarea rows="3" />
 		</f:entry>
 
-		<f:entry title="Jobs" help="/plugin/repo/help-jobs.html">
-			<f:textbox name="repo.jobs" value="${scm.jobs}" clazz="number"/>
+		<f:entry title="Destination Directory" field="destinationDir">
+			<f:textbox/>
 		</f:entry>
 
-		<f:entry title="Local Manifest" help="/plugin/repo/help-localManifest.html">
-			<f:textarea name="repo.localManifest" value="${scm.localManifest}" rows="10" />
+		<f:entry title="Repo Url" field="repoUrl">
+			<f:textbox/>
+		</f:entry>
+
+		<f:entry title="Repo Branch" field="repoBranch">
+		    <f:textbox/>
+		</f:entry>
+
+		<f:entry title="Mirror Directory" field="mirrorDir">
+			<f:textbox/>
+		</f:entry>
+
+		<f:entry title="Jobs" field="jobs">
+			<f:textbox clazz="number"/>
+		</f:entry>
+
+		<f:entry title="Depth" field="depth">
+			<f:textbox clazz="number" />
+		</f:entry>
+
+		<f:entry title="Current Branch" field="currentBranch">
+			<f:checkbox default="true"/>
+		</f:entry>
+
+		<f:entry title="Sync manifest submodules" field="manifestSubmodules">
+			<f:checkbox default="false"/>
+		</f:entry>
+
+		<f:entry title="Fetch submodules" field="fetchSubmodules">
+			<f:checkbox default="false"/>
+		</f:entry>
+
+		<f:entry title="Reset first" field="resetFirst">
+			<f:checkbox/>
+		</f:entry>
+
+		<f:entry title="Clean first" field="cleanFirst">
+			<f:checkbox/>
+		</f:entry>
+
+		<f:entry title="Quiet" field="quiet">
+			<f:checkbox default="true"/>
+		</f:entry>
+
+		<f:entry title="Force Sync" field="forceSync">
+			<f:checkbox/>
+		</f:entry>
+
+		<f:entry title="No tags" field="noTags">
+			<f:checkbox/>
+		</f:entry>
+
+		<f:entry title="Trace" field="trace">
+			<f:checkbox/>
+		</f:entry>
+
+		<f:entry title="Show all changes" field="showAllChanges">
+			<f:checkbox/>
+		</f:entry>
+
+		<f:entry title="Local Manifest" field="localManifest">
+			<f:textarea rows="10" />
+		</f:entry>
+
+		<f:entry title="No Clone Bundle" field="noCloneBundle">
+			<f:checkbox/>
+		</f:entry>
+
+		<f:entry title="Worktree" field="worktree">
+			<f:checkbox/>
 		</f:entry>
 
 	</f:advanced>

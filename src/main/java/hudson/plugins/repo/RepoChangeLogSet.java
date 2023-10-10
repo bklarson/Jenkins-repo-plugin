@@ -23,8 +23,9 @@
  */
 package hudson.plugins.repo;
 
-import hudson.model.AbstractBuild;
+import hudson.model.Run;
 import hudson.scm.ChangeLogSet;
+import hudson.scm.RepositoryBrowser;
 
 import java.util.Iterator;
 import java.util.List;
@@ -33,7 +34,7 @@ import java.util.List;
  * A ChangeLogSet, which is used when generating the list of changes from one
  * build to the next.
  */
-public class RepoChangeLogSet extends ChangeLogSet<ChangeLogEntry> {
+class RepoChangeLogSet extends ChangeLogSet<ChangeLogEntry> {
 	private final List<ChangeLogEntry> logs;
 
 	/**
@@ -42,13 +43,15 @@ public class RepoChangeLogSet extends ChangeLogSet<ChangeLogEntry> {
 	 *
 	 * @param build
 	 *            The build which caused this change log.
+	 * @param browser
+	 *            Repository browser.
 	 * @param logs
 	 *            a list of RepoChangeLogEntry, containing every change (commit)
 	 *            which has occurred since the last build.
 	 */
-	protected RepoChangeLogSet(final AbstractBuild<?, ?> build,
-			final List<ChangeLogEntry> logs) {
-		super(build);
+	RepoChangeLogSet(final Run build,
+					 final RepositoryBrowser<?> browser, final List<ChangeLogEntry> logs) {
+		super(build, browser);
 		this.logs = logs;
 		for (final ChangeLogEntry log : logs) {
 			log.setParent(this);
