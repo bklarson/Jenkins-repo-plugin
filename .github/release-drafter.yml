@@ -1,0 +1,4 @@
+_extends: .github
+version-template: $MAJOR.$MINOR.$PATCH
+tag-template: repo-$NEXT_PATCH_VERSION
+name-template: Repo SCM Plugin $NEXT_PATCH_VERSION

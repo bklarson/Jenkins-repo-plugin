@@ -1,0 +1,5 @@
+Known bugs
+==========
+
+Manually building a project with no changes, will cause a
+"failed to determine" changes in the build result.
